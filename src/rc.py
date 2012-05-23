@@ -609,7 +609,8 @@ class EventHandler:
                 e = config.EVENTS[c][key]
                 e.context = self.context
                 return e
-            except KeyError:
+            except KeyError, e:
+                logger.info('KeyError mapping event for key %r in context %r - Error -> %s', key, self.context, e)
                 pass
 
         if self.context != 'input':

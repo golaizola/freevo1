@@ -31,6 +31,7 @@
 
 from area import Skin_Area
 from skin_utils import *
+import filecmp
 
 import skin
 
@@ -53,15 +54,35 @@ class View_Area(Skin_Area):
         """
         item = self.viewitem
         image = None
+        update = False
 
         if hasattr(item, 'image') and item.image:
             image = item.image
 
         if Unicode(image) != Unicode(self.image):
-            self._image = None
-            self.image_loaded = False
+            if image and self.image:
+                try:
+                    if not filecmp.cmp(Unicode(image), Unicode(self.image), shallow=False):
+                        self._image = None
+                        self.image_loaded = False
+                        update = True
+                except:
+                    self._image = None
+                    self.image_loaded = False
+                    update = True
+                    
+            elif image and not self.image:
+                self._image = None
+                self.image_loaded = False
+                update = True
+
+            elif self.image and not image:
+                self._image = None
+                self.image_loaded = False
+                update = True
             
-        return Unicode(image) != Unicode(self.image) or self.image_loaded
+        return update or self.image_loaded
+
 
     def __loaded(self, result, image_request):
         if self.image == image_request[0]:
@@ -80,6 +101,15 @@ class View_Area(Skin_Area):
         layout    = self.layout
         area      = self.area_val
         content   = self.calc_geometry(layout.content, copy_object=True)
+        thumbnail = True
+ 
+        # EXIF Thumbnails are good for folder icons but not for higher res views
+        # if na item has one, we will force load of the quality picture.
+        #if hasattr(item, 'exif_thumbnail') and item['exif_thumbnail']:
+        #    if not self.image_loaded:
+        #        logger.debug('view area -> forcing bitmap load')
+        #        self._image = None
+        #        thumbnail = False
 
         self.image_loaded = False
 
@@ -131,7 +161,7 @@ class View_Area(Skin_Area):
         else:
             if self.loading_image:
                 self.loading_image.cancelled = True
-            self.loading_image = AsyncImageFormatter(self.settings, item, width, height, 0, self.xml_settings.anamorphic)
+            self.loading_image = AsyncImageFormatter(self.settings, item, width, height, 0, self.xml_settings.anamorphic, get_exif_thumbnail=thumbnail)
             self.loading_image.connect(self.__loaded, (self.image, width, height))
             image = None
 

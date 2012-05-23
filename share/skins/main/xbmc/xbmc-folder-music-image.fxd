@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+
+<!--
+Freevo does not allow you to arrange your libraries easily. In fact it relies on 
+the directory structure to do just that.
+
+One way to arrange your music directories is like this:
+
+music/artist/album/...
+
+if you have fan art drop the fxd below into your individual audio directory
+Fan art will show up as background when the directry is entered.
+Filename should be folder.fxd
+
+Make sure your fan art is minimum 1280x720 resolution.
+
+<?xml version="1.0"?>
+<freevo>
+
+    <skin include="xbmc/xbmc-folder-music-image" geometry="1280x720">
+        <image label="background" scale="aspect" filename="background.jpg"/>
+    </skin>
+
+</freevo>
+
+-->
+
+<freevo>
+    <skin include="xbmc" geometry="1280x720">
+
+        <menu type="default">
+            <style text="audio listing" />
+        </menu>
+        <menu type="audio">
+            <style image="listing" text="explorer"/>
+            <style text="ribbon"/>
+        </menu>
+
+        <menuset label="explorer" inherits="audio explorer with info">
+            <screen layout="screen explorer background" visible="yes"/>
+        </menuset>
+
+        <menuset label="listing" inherits="audio listing with info">
+            <screen layout="screen listing background" visible="yes"/>
+        </menuset>
+
+        <menuset label="ribbon" inherits="audio ribbon with info">
+            <screen layout="screen ribbon background" visible="yes"/>
+        </menuset>
+
+        <layout label="screen listing background">
+            <background>
+                <image image="background" label="background" x="0" y="0" />
+                <image image="media_blade" x="0" y="0" width="1280" scale="noscale" height="max"/>
+                <image image="separator_vert" x="448" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="screen explorer background">
+            <background>
+                <image image="background" label="background" x="0" y="0" />
+                <image image="media_blade" x="0" y="0" width="1280" scale="noscale" height="max"/>
+                <image image="separator_vert" x="820" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="screen ribbon background">
+            <background>
+                <image image="background" label="background" x="0" y="0" />
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="panel" label="panel_movie" x="60" y="80" width="1160" height="400" scale="both"/>
+            </background>
+        </layout>
+
+    </skin>
+</freevo>
+
+

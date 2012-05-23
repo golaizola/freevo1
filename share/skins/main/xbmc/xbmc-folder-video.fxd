@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+
+<!-- 
+Freevo does not allow you to arrange your libraries easily. In fact it relies on 
+the directory structure to do just that.
+-->
+
+<freevo>
+    <skin include="xbmc" geometry="1280x720">
+        <menu type="default">
+            <style text="video listing" />
+        </menu>
+        <menu type="video">
+            <style text="video ribbon with info" />
+            <style text="video listing with info" />
+            <!-- <style text="video explorer with info" /> -->
+        </menu>
+    </skin>
+</freevo>

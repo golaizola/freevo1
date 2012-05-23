@@ -1,0 +1,173 @@
+<?xml version="1.0" ?>
+<!DOCTYPE freevo-skin SYSTEM "../freevo-skin.dtd">
+<freevo>
+        <skin geometry="1280x720">
+   
+        *******************************************************
+        ** Apple Trailers
+        ******************************************************* -->
+
+        <menu type="appletrailers menu">
+            <style text="appletrailers menu"/>
+        </menu>
+
+        <menu type="appletrailers submenu">
+            <style text="appletrailers menu"/>
+        </menu>
+
+        <!-- The "video listing with info" -->
+        <menuset label="appletrailers menu" inherits="item listing">
+            <screen layout="appletrailers screen listing" visible="yes"/>
+            <title visible="no"/>
+            <info layout="video vert info" x="30" y="390" width="400" height="270"/>
+        </menuset>
+
+        <layout label="appletrailers screen listing">
+            <background>
+                <image image="background_apple" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="separator_vert" x="448" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+        
+
+        <!-- 
+        *******************************************************
+        ** Youtube
+        ******************************************************* -->
+
+        <menu type="youtube menu">
+            <style text="youtube menu"/>
+        </menu>
+
+        <menu type="youtube submenu">
+            <style text="youtube menu"/>
+        </menu>
+
+        <!-- The "video listing with info" -->
+        <menuset label="youtube menu" inherits="item listing">
+            <screen layout="youtube screen listing" visible="yes"/>
+            <title visible="no"/>
+            <info layout="video vert info" x="30" y="390" width="400" height="270"/>
+        </menuset>
+
+        <layout label="youtube screen listing">
+            <background>
+                <image image="background_youtube" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="separator_vert" x="448" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+        
+        <!-- 
+        *******************************************************
+        ** Weather
+        ******************************************************* -->
+
+        <menu type="weather">
+            <style text="weather menu"/>
+        </menu>
+
+        <menuset label="weather menu" inherits="item listing">
+            <screen layout="weather main screen" visible="yes" width="1280" height="720"/>
+            <title visible="no"/>
+        </menuset>
+
+        <oneclick>
+          <screen layout="weather screen" x="0" y="0" width="1280" height="720"/>
+          <subtitle visible="yes" layout="subtitle" x="40" y="50" width="1210" height="50"/>
+          <content layout="oneclick" x="40" y="100" width="1210" height="580"/>
+        </oneclick>
+
+        <layout label="weather main screen">
+            <background>
+                <image image="background_weather" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="separator_vert" x="448" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="weather screen">
+            <background>
+                <image image="background_weather" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+            </background>
+        </layout>
+
+        <layout label="oneclick">
+            <background>
+                <image image="logo_weather" x="1080" y="450" width="128" height="128" scale="aspect"/>            
+            </background>
+            <content x="0" y="0" width="" height="" spacing="10"/>
+        </layout>
+
+        <!-- 
+        *******************************************************
+        ** Headlines
+        ******************************************************* -->
+
+        <headlines>
+            <screen layout="headlines screen listing" visible="yes" width="1280" height="720"/>
+            <title visible="yes" layout="title" x="30" y="60" width="" height="60"/>
+            <scrollabletext layout="headlines info" x="30" y="90" width="1220" height="590">
+                <image x="1200" y="90" label="uparrow" filename="up.png"/>
+                <image x="1200" y="560" label="downarrow" filename="down.png"/>
+            </scrollabletext>
+        </headlines>
+
+        <menu type="headlines menu">
+            <style text="headlines menu"/>
+        </menu>
+
+        <menu type="headlines submenu">
+            <style text="headlines submenu"/>
+        </menu>
+
+        <menuset label="headlines menu" inherits="item listing big">
+            <screen layout="headlines screen listing" visible="yes" width="1280" height="720"/>
+            <title visible="no"/>
+        </menuset>
+
+        <menuset label="headlines submenu" inherits="item listing big with info">
+            <screen layout="headlines screen listing" visible="yes" width="1280" height="720"/>
+            <title visible="no"/>
+        </menuset>
+
+        <layout label="headlines screen listing">
+            <background>
+                <image image="background_headlines" scale="both" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+            </background>
+        </layout>
+
+        <!-- default info area -->
+        <layout label="headlines info">
+            <content x="0" y="0" type="text" spacing="20" font="info tagline white">
+                <item type="default">
+                    <if expression="description">
+                        <text height="max" mode="soft" 
+                            expression="description"/>
+                        <newline/>
+                    </if>
+                </item>
+            </content>
+        </layout>
+
+
+        <!-- 
+        *******************************************************
+        ** Plugin fonts, colors, images 
+        *******************************************************
+        -->
+        <image label="background_weather" filename="xbmc/back_weather.png"/>
+        <image label="background_headlines" filename="xbmc/back_headlines.png"/>
+        <image label="background_apple" filename="xbmc/back_apple.jpg"/>
+        <image label="background_youtube" filename="xbmc/back_youtube.jpg"/>
+        <image label="logo_weather" filename="xbmc/logo_twc.png"/>
+     
+    </skin>
+</freevo>
+
+<!--
+vim:autoindent:tabstop=4:softtabstop=4:shiftwidth=4:expandtab:filetype=xml:
+-->

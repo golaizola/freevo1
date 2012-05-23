@@ -197,7 +197,7 @@ class HeadlinesSiteItem(Item):
         if (len(headlines) == 0):
             headlines += [menu.MenuItem(_('No Headlines found'), menuw.back_one_menu, 0)]
 
-        headlines_menu = menu.Menu(_('Headlines'), headlines)
+        headlines_menu = menu.Menu(_('Headlines'), headlines, item_types = 'headlines submenu')
         menuw.pushmenu(headlines_menu)
         menuw.refresh()
 
@@ -229,6 +229,6 @@ class HeadlinesMainMenuItem(Item):
         if (len(headlines_sites) == 0):
             headlines_sites += [menu.MenuItem(_('No Headlines Sites found'),
                                               menuw.back_one_menu, 0)]
-        headlines_site_menu = menu.Menu(_('Headlines Sites'), headlines_sites)
+        headlines_site_menu = menu.Menu(_('Headlines Sites'), headlines_sites, item_types = 'headlines menu')
         menuw.pushmenu(headlines_site_menu)
         menuw.refresh()

@@ -116,17 +116,17 @@ class TrailerItem(VideoItem):
         self.files = ''
         self.image = trailer.poster
         self.description = trailer.description
-        self.description += _('\n\nGenres: ') + ','.join(trailer.genres)
+        self.description += _('\nGenres: ') + ','.join(trailer.genres)
         if trailer.release_date:
-            self.description += _('\n\nDate: ') + trailer.release_date.strftime(config.APPLETRAILERS_DATE_FORMAT)
+            self.description += _('\nDate: ') + trailer.release_date.strftime(config.APPLETRAILERS_DATE_FORMAT)
         else:
-            self.description += _('\n\nDate: Unknown')
+            self.description += _('\nDate: Unknown')
         if trailer.rating:
-            self.description += ('\n\nRating: ') + trailer.rating
+            self.description += ('\nRating: ') + trailer.rating
         if trailer.director:
-            self.description += ('\n\nDirector: ') + trailer.director
+            self.description += ('\nDirector: ') + trailer.director
         if trailer.runtime:
-            self.description += ('\n\nRuntime: %d minutes') % trailer.runtime
+            self.description += ('\nRuntime: %d minutes') % trailer.runtime
         self.plot = self.description
 
 
@@ -144,7 +144,7 @@ class BrowseByTitle(Item):
         entries = []
         for trailer in self.items:
             entries.append(TrailerItem(trailer, self))
-        menuw.pushmenu(menu.Menu(self.title, entries))
+        menuw.pushmenu(menu.Menu(self.title, entries, item_types = 'appletrailers submenu'))
 
 
 class BrowseByMenu(Item):
@@ -163,7 +163,7 @@ class BrowseByMenu(Item):
         for key,trailers in self.hash.items():
             items.append(BrowseByTitle(unicode(key), trailers, self))
         items.sort(lambda x,y: cmp(x.name, y.name))
-        menuw.pushmenu(menu.Menu(self.name, items))
+        menuw.pushmenu(menu.Menu(self.name, items, item_types = 'appletrailers submenu'))
 
 
 class BrowseByReleaseDate(BrowseByMenu):
@@ -192,7 +192,7 @@ class BrowseByReleaseDate(BrowseByMenu):
                 title = date.strftime(config.APPLETRAILERS_DATE_FORMAT)
             items.append(BrowseByTitle(title, trailers, self))
 
-        menuw.pushmenu(menu.Menu(self.name, items))
+        menuw.pushmenu(menu.Menu(self.name, items, item_types = 'appletrailers submenu'))
 
 
 class BrowseMainMenu(Item):
@@ -240,4 +240,4 @@ class BrowseMainMenu(Item):
                   BrowseByMenu(_('Browse by Actor'), self.trailers.actors, self),
                   BrowseByMenu(_('Browse by Director'), self.trailers.directors, self),
                   BrowseByMenu(_('Browse by Studio'), self.trailers.studios, self),
-                  BrowseByMenu(_('Browse by Rating'), self.trailers.ratings, self)]))
+                  BrowseByMenu(_('Browse by Rating'), self.trailers.ratings, self)], item_types = 'appletrailers menu'))

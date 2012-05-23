@@ -53,7 +53,7 @@
 import logging
 logger = logging.getLogger("freevo.video.plugins.youtube")
 
-__author__           = 'Alberto Gonz�lez Rodr�guez'
+__author__           = 'Alberto Gonz?lez Rodr?guez'
 __author_email__     = 'alberto@pesadilla.org'
 __maintainer__       = __author__
 __maintainer_email__ = __author_email__
@@ -98,15 +98,15 @@ def decodeAcute(chain):
                 .replace('&iacute;', 'í') \
                 .replace('&oacute;', 'ó') \
                 .replace('&uacute;', 'ú') \
-                .replace('&ordf;'  , 'º') \
-                .replace('&ntilde;', 'ñ') \
-                .replace('&iexcl;' , '¡') \
+                .replace('&ordf;'  , '?') \
+                .replace('&ntilde;', '?') \
+                .replace('&iexcl;' , '?') \
                 .replace('&Aacute;', 'A') \
                 .replace('&Eacute;', 'E') \
                 .replace('&Iacute;', 'I') \
                 .replace('&Oacute;', 'O') \
                 .replace('&Uacute;', 'U') \
-                .replace('&Ntilde;', 'ñ')
+                .replace('&Ntilde;', '?')
 
 try:
     from xml.etree import cElementTree as ElementTree
@@ -216,7 +216,7 @@ class YoutubeVideoItem(VideoItem):
 
 class YoutubeVideoMenu(menu.Menu):
     def __init__(self, service, feed, parent):
-        menu.Menu.__init__(self, _('Videos available'), [])
+        menu.Menu.__init__(self, _('Videos available'), [], item_types = 'youtube submenu')
         self.service = service
         self.feed = feed
         self.parent = parent
@@ -286,7 +286,7 @@ class YoutubeVideo(Item):
         for item in config.YOUTUBE_VIDEOS:
             users.append(menu.MenuItem(item[1], self.videolist, item))
         users.append(menu.MenuItem('Search video', self.search_video, 0))
-        menuw.pushmenu(menu.Menu(_('Choose please'), users))
+        menuw.pushmenu(menu.Menu(_('Choose please'), users, item_types = 'youtube menu'))
 
 
     def search_video(self, arg=None, menuw=None):

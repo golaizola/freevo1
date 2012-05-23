@@ -54,11 +54,6 @@ class AudioItem(Item):
 
         self.set_url(url, info=scan)
 
-        if name:
-            self.name = name
-        else:
-            self.name = self.format_track()
-
         self.start      = 0
         self.elapsed    = 0
         self.remain     = 0
@@ -70,6 +65,11 @@ class AudioItem(Item):
             self.length = int(self.info['length'])
         except:
             self.length = 0
+
+        if name:
+            self.name = name
+        else:
+            self.name = self.format_track()
 
         # Let's try to find if there is any image in the current directory
         # that could be used as a cover
@@ -232,22 +232,31 @@ class AudioItem(Item):
             else:
                 mytrack = '  '
 
+            if self['length']:
+                try:
+                    length = self['length']
+                except ValueError:
+                    length = ''
+            else:
+                length = ''
+                
             song_info = {  'a'  : self['artist'],
                            'l'  : self['album'],
                            'n'  : mytrack,
                            't'  : self['title'],
                            'y'  : self['year'],
+                           'r'  : length,
                            'f'  : self['name'] }
 
             if hasattr(self.parent, 'AUDIO_FORMAT_STRING'):
-                formatstring = self.parent.DIRECTORY_AUDIO_FORMAT_STRING
+                formatstring = unicode(self.parent.DIRECTORY_AUDIO_FORMAT_STRING)
             else:
-                formatstring = config.DIRECTORY_AUDIO_FORMAT_STRING
+                formatstring = unicode(config.DIRECTORY_AUDIO_FORMAT_STRING)
 
             formatted_info = formatstring % song_info
 
             # check if the song info was not empty
-            if formatted_info != (formatstring % { 'a' : '', 'l' : '', 'n' : '  ', 't' : '', 'y' : '', 'f' : '' }):
+            if formatted_info != (formatstring % { 'a' : '', 'l' : '', 'n' : '  ', 't' : '', 'y' : '', 'r' : '', 'f' : '' }):
                 return formatted_info
 
         # fallback to current song name

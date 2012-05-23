@@ -34,11 +34,12 @@ logger = logging.getLogger("freevo.skins.main.listing_area")
 import copy
 import types
 
-from area import Skin_Area
+from area import Skin_Area, Geometry
 from skin_utils import *
 from skin import eval_attr
 
 import skin
+import xml_skin
 
 import config
 
@@ -295,7 +296,7 @@ class Listing_Area(Skin_Area):
 
             if not choice.icon and not type_image:
                 if choice.type == 'playlist':
-                    text = 'PL: %s' % text
+                    text = '%s Playlist' % text.replace('playlist', '').strip()
 
                 if choice.type == 'dir' and choice.parent and \
                    choice.parent.type != 'mediamenu':
@@ -352,6 +353,21 @@ class Listing_Area(Skin_Area):
                                       y0 + vskip + r.y,
                                       r.width - icon_x + BOX_UNDER_ICON * icon_x,
                                       r.height, r)
+
+                # lets draw the image if present. This in 99% caes will be used for hihliting menu items
+                # so no need for fancy sizing, just fill inn whole area
+                if hasattr(val, 'fcontent'):
+                    for i in val.fcontent:
+                        if isinstance(i, xml_skin.FormatImg):
+                            r = self.get_item_rectangle(i, width, val.font.h)[ 2 ]
+                            wdg_x = x0 + hskip + r.x + x_icon - BOX_UNDER_ICON * x_icon
+                            wdg_y = y0 + vskip + r.y
+                            self.drawimage(i.src,
+                                           (x0 + hskip + r.x + x_icon - BOX_UNDER_ICON * x_icon,
+                                            y0 + vskip + r.y,
+                                            r.width - icon_x + BOX_UNDER_ICON * icon_x,
+                                            r.height))
+
 
                 # special handling for tv shows
                 if choice.type == 'video' and hasattr(choice,'tv_show') and \

@@ -129,7 +129,7 @@ if not reason:
 
             self.window.show()
             self.window.raise_()
-            self.window.render_imlib2_image(self.image)
+            self.window.render_imlib2_image(self.image, blend=True)
 
 
         def hide_image(self):

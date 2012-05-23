@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!DOCTYPE freevo-skin SYSTEM "../freevo-skin.dtd">
+<freevo>
+
+    <include>
+        <file src="info"/>
+        <file src="xbmc/xbmc-main"/>
+        <file src="xbmc/xbmc-video"/>
+        <file src="xbmc/xbmc-audio"/>
+        <file src="xbmc/xbmc-image"/>
+        <file src="xbmc/xbmc-plugins"/>
+    </include>
+
+    <skin geometry="1280x720"/>
+
+</freevo>
+
+<!--
+vim:autoindent:tabstop=4:softtabstop=4:shiftwidth=4:expandtab:filetype=xml:
+-->

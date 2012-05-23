@@ -801,7 +801,7 @@ class WeatherMainMenu(Item):
             locations[0](menuw=menuw)
         else:
             # create menu
-            weather_site_menu = menu.Menu(_('Locations'), locations)
+            weather_site_menu = menu.Menu(_('Locations'), locations, item_types = 'weather')
             menuw.pushmenu(weather_site_menu)
             menuw.refresh()
 

@@ -568,6 +568,9 @@ class Content(XML_data):
                             elif rnode.name == u'img':
                                 child = FormatImg()
 
+                            child.align = self.types[type].align
+                            child.valign = self.types[type].valign
+
                             self.types[ type ].fcontent += [ child ]
                             self.types[ type ].fcontent[-1].parse(rnode, scale, current_dir)
 
@@ -682,6 +685,7 @@ class FormatNewline:
     def prepare(self, font, color, search_dirs):
         pass
 
+
 class FormatImg(XML_data):
     def __init__(self):
         XML_data.__init__(self, ('x', 'y', 'width', 'height'))
@@ -690,14 +694,19 @@ class FormatImg(XML_data):
         self.width = None
         self.height = None
         self.src = ''
+        self.srcexpr = None
+        self.search_dirs = None
 
     def parse(self, node, scale, c_dir=''):
         XML_data.parse(self, node, scale, c_dir)
         self.src = attr_str(node, 'src', self.src)
+        self.srcexpr = attr_str(node, 'srcexpr', self.srcexpr)
 
     def prepare(self, font, color, search_dirs):
-        self.src = search_file(self.src, search_dirs)
-
+        if len(self.src):
+            self.src = search_file(self.src, search_dirs)
+        else:
+            self.search_dirs = search_dirs
 
 
 class FormatIf:
@@ -871,8 +880,8 @@ class XMLSkin:
         self._mainmenu = MainMenu()
         self.skindirs  = []
         self.icon_dir  = ""
-
-        self.fxd_files        = []
+        self.files     = []
+        self.fxd_files = []
 
         # variables set by set_var
         self.all_variables    = ('box_under_icon', 'anamorphic',)
@@ -913,7 +922,6 @@ class XMLSkin:
                     self._menuset[label] = MenuSet()
                 self._menuset[label].parse(node, scale, c_dir)
 
-
             elif node.name == u'layout':
                 label = attr_str(node, 'label', '')
                 if label:
@@ -921,6 +929,11 @@ class XMLSkin:
                         self._layout[label] = Layout(label)
                     self._layout[label].parse(node, scale, c_dir)
 
+            elif node.name == u'file':
+                file = None
+                src = attr_str(node, 'src', '')
+                if src and src not in self.files:
+                    self.files.append(src)
 
             elif node.name == u'font':
                 label = attr_str(node, 'label', '')
@@ -1093,10 +1106,54 @@ class XMLSkin:
         return
 
 
+    def include_callback(self, fxd, node):
+        """
+        callback for the 'include' tag
+        <include>
+            <file src="skin1.fxd/>
+            <file src="skin2.fxd/>
+            ...
+        </include>
+
+        """
+        # get args back
+        (clear, file, prepare) = fxd.getattr(None, 'args')
+
+        font_scale    = attr_float(node, 'fontscale', 1.0)
+        file_geometry = attr_str(node, 'geometry', '')
+
+        if file_geometry:
+            w, h = file_geometry.split('x')
+        else:
+            w = config.CONF.width
+            h = config.CONF.height
+
+        scale = (float(config.CONF.width-(config.OSD_OVERSCAN_LEFT+config.OSD_OVERSCAN_RIGHT))/float(w),
+                 float(config.CONF.height-(config.OSD_OVERSCAN_TOP+config.OSD_OVERSCAN_BOTTOM))/float(h))
+
+        scale = (float(config.CONF.width-(config.OSD_OVERSCAN_LEFT+config.OSD_OVERSCAN_RIGHT))/float(w),
+                 float(config.CONF.height-(config.OSD_OVERSCAN_TOP+config.OSD_OVERSCAN_BOTTOM))/float(h))
+
+        self.parse(node, scale, os.path.dirname(file))
+
+        for f in self.files:
+            logger.debug('loading \"%s\" fxd file now', f)
+            self.load(f, prepare=False)
+            self.parse(node, scale, os.path.dirname(file))
+        
+            if not os.path.dirname(file) in self.skindirs:
+                self.skindirs = [ os.path.dirname(file) ] + self.skindirs
+
+        return
+
+
     def load(self, file, prepare=True, clear=False):
         """
         load and parse the skin file
         """
+        if file in self.fxd_files:
+            return
+
         if clear:
             self._layout   = {}
             self._font     = {}
@@ -1136,6 +1193,7 @@ class XMLSkin:
         try:
             parser = util.fxdparser.FXD(file)
             parser.setattr(None, 'args', (clear, file, prepare))
+            parser.set_handler('include', self.include_callback)
             parser.set_handler('skin', self.fxd_callback)
             parser.parse()
             self.fxd_files.append(file)

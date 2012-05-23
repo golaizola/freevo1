@@ -95,9 +95,9 @@ def generate_cache_key(settings, item, width, height, force=0):
     return cname
 
 
-def format_image(settings, item, width, height, force=False, anamorphic=False, flush_large_image=False):
-    logger.log( 9, 'format_image(settings=%r, item=%r, width=%r, height=%r, force=%r, anamorphic=%r, flush_large_image=%r)', settings, item, width, height, force, anamorphic, flush_large_image)
-
+def format_image(settings, item, width, height, force=False, anamorphic=False, flush_large_image=False, get_exif_thumbnail=True):
+    logger.log( 9, 'format_image(settings=%r, item=%r, width=%r, height=%r, force=%r, anamorphic=%r, flush_large_image=%r, get_exif_thumbnail=%r)', 
+        settings, item, width, height, force, anamorphic, flush_large_image, get_exif_thumbnail)
 
     cname = generate_cache_key(settings, item, width, height, force)
     cimage = format_imagecache[cname]
@@ -329,8 +329,10 @@ def text_or_icon(settings, string, x, width, font):
 
 class AsyncImageFormatter(object):
     def __init__(self, settings, item, width, height, force, anamorphic,
-                    high_priority=False, flush_large_image=False):
-        self.args = (settings, item, width, height, force, anamorphic, flush_large_image)
+                    high_priority=False, flush_large_image=False, get_exif_thumbnail=True):
+
+        self.args = (settings, item, width, height, force, anamorphic, flush_large_image, get_exif_thumbnail)
+
         self.cancelled = False
         if high_priority:
             pool_info = (thread_pool, 1)

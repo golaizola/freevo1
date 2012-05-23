@@ -83,6 +83,7 @@ class MPlayer:
 
         self.event_context = 'video'
         self.seek       = 0
+        self.seeking    = False
         self.seek_timer = threading.Timer(0, self.reset_seek)
         self.app        = None
         self.plugins    = []
@@ -504,10 +505,14 @@ class MPlayer:
         if event == TOGGLE_OSD:
             if dialog.is_dialog_supported():
                 if self.play_state_dialog is None:
-                    if self.paused:
+                    if self.paused and config.OSD_TOGGLE_STATE_INFO:
                         self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_INFO, self.item, self.get_stored_time_info)
-                    else:
+                    elif self.paused and not config.OSD_TOGGLE_STATE_INFO:
+                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE, self.item, self.get_stored_time_info)
+                    elif not self.paused and config.OSD_TOGGLE_STATE_INFO:
                         self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_INFO, self.item, self.get_time_info)
+                    else:
+                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
                 else:
                     self.play_state_dialog.hide()
                     self.play_state_dialog = None
@@ -518,10 +523,12 @@ class MPlayer:
 
         if event == PAUSE or event == PLAY:
             self.paused = not self.paused
+            self.seeking = False
             # We have to store the current time before displaying the dialog
             # otherwise the act of requesting the current position resumes playback!
+            self.stored_time_info = self.get_time_info()
+
             if self.paused:
-                self.stored_time_info = self.get_time_info()
                 self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE, self.item, self.get_stored_time_info)
                 self.app.write('pause\n')
             else:
@@ -553,12 +560,11 @@ class MPlayer:
                 # check again if seek is allowed
                 if self.item_length <= self.item.elapsed + event.arg + seek_safety_time:
                     logger.debug('unable to seek %s secs at time %s, length %s', event.arg, self.item.elapsed, self.item_length)
-
-
                     dialog.show_message(_('Seeking not possible'))
                     return False
             
             self.paused = False
+            self.seeking = True
             self.app.write('seek %s\n' % event.arg)
             if event.arg > 0:
                 self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_SEEK_FORWARD, self.item, self.get_time_info)
@@ -695,9 +701,10 @@ class MPlayer:
         length = self.app.get_property('length')
         percent_pos = self.app.get_property('percent_pos')
         if time_pos and length and percent_pos:
-            return (int(float(time_pos)), int(float(length)), int(percent_pos) / 100.0)
-        else:
-            return None
+            self.stored_time_info = (int(float(time_pos)), int(float(length)), int(percent_pos) / 100.0)
+        return self.stored_time_info
+
+
 
 # ======================================================================
 

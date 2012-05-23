@@ -36,6 +36,9 @@ import config
 import skin
 import rc
 import plugin
+import dialog
+import dialog.dialogs
+
 from event import *
 
 if config.DEBUG_DEBUGGER:
@@ -53,14 +56,17 @@ class PlayerGUI(GUIObject):
         logger.debug('PlayerGUI.__init__(item=%r, menuw=%r, arg=%r)', item, menuw, arg)
         GUIObject.__init__(self)
         self.visible = menuw and True or False
-        self.item = item
-        self.menuw = menuw
-        self.arg = arg
-        self.succession = PlayListSuccession(arg)
+        self.item    = item
+        self.menuw   = menuw
+        self.arg     = arg
         self.player  = None
         self.running = False
         self.pbox    = None
-        self.progressbox = None
+        self.dialog  = None
+        self.seeking = 0
+        self.paused  = False
+        self.succession    = PlayListSuccession(arg)
+        self.progressbox   = None
         self.last_progress = 0
         self.first_drawing = True
 
@@ -96,7 +102,7 @@ class PlayerGUI(GUIObject):
             if len(self.possible_players) > 0:
                 self.player_rating, self.player = self.possible_players[0]
 
-        if self.menuw and self.menuw.visible:
+        if self.menuw and self.menuw.visible and self.visible:
             self.menuw.hide(clear=False)
 
         self.running = True
@@ -107,9 +113,17 @@ class PlayerGUI(GUIObject):
             if self.visible:
                 rc.remove_app(self.player)
             self.item.eventhandler(PLAY_END)
+
         else:
+            self.paused = False
+            if self.visible and dialog.is_dialog_supported():
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info, type='full')
+                self.dialog.show()
+
             if self.visible:
                 rc.add_app(self.player)
+
             self.refresh()
 
 
@@ -132,6 +146,38 @@ class PlayerGUI(GUIObject):
         logger.debug('no more players found')
         return 0
 
+    def pause(self):
+        self.paused = not self.paused
+        if self.visible and self.dialog:
+            if self.paused:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PAUSE, 
+                    self.item, self.get_time_info, type='full')
+            else:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info, type='full')
+            self.dialog.show()
+ 
+
+    def next(self):
+        self.paused = False
+        if self.visible and self.dialog: 
+            self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_SEEK_FORWARD, 
+                self.item, self.get_time_info, type='full')
+            self.dialog.show()
+
+
+    def seek(self, dir):
+        self.paused = False
+        if self.visible and self.dialog:
+            if dir > 0:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_FFORWARD, 
+                    self.item, self.get_time_info, type='full')
+            else:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_REWIND, 
+                    self.item, self.get_time_info, type='full')
+            self.dialog.show()
+            self.seeking = 2
+
 
     def stop(self, restore_menu=False):
         logger.debug('stop(restore_menu=%r)', restore_menu)
@@ -142,6 +188,10 @@ class PlayerGUI(GUIObject):
         if self.visible:
             rc.remove_app(self.player)
             skin.draw('player', self.item, transition=skin.TRANSITION_OUT)
+            if self.dialog:
+                self.dialog.hide()
+                self.dialog.finish()
+                self.dialog = None
 
         if self.menuw and not self.menuw.visible and restore_menu:
             self.menuw.show()
@@ -153,6 +203,8 @@ class PlayerGUI(GUIObject):
             self.visible = True
             self.refresh()
             rc.add_app(self.player)
+            if self.dialog:
+                self.dialog.show()
 
 
     def hide(self):
@@ -161,6 +213,10 @@ class PlayerGUI(GUIObject):
             self.visible = False
             skin.clear()
             rc.remove_app(self.player)
+            if self.dialog:
+                self.dialog.hide()
+                self.dialog.finish()
+                self.dialog = None
 
 
     def refresh(self):
@@ -186,6 +242,41 @@ class PlayerGUI(GUIObject):
         else:
             transition = skin.TRANSITION_NONE
         skin.draw('player', self.item, transition=transition)
+
+        if self.visible and self.dialog and self.seeking >= 0:
+            if self.seeking > 0:
+                self.seeking = self.seeking - 1
+                return
+
+            if self.paused:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PAUSE, 
+                    self.item, self.get_time_info, type='full')
+            else:
+                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info, type='full')
+
+            self.dialog.show()
+            self.seeking = -1
+
+    def get_time_info(self):
+        """
+        callback for PlayStateDialog
+        returns an array of audio info to be rendered on the dialog
+        """
+
+        if self.player is None:
+            return None
+
+        try:
+            if self.player.item.length and self.player.item.elapsed:
+                return (self.player.item.elapsed, self.player.item.length)
+            elif self.player.item.elapsed:
+                return (self.player.item.elapsed)
+            else:
+                return None
+        except AttributeError:
+            return None
+
 
 
 
@@ -248,6 +339,5 @@ class PlayListSuccession:
         return self
 
 
-
 # register player to the skin
-skin.register('player', ('screen', 'title', 'view', 'info', 'plugin'))
+skin.register('player', ('screen', 'title', 'plugin'))

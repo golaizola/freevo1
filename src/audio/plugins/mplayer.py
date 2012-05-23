@@ -236,11 +236,18 @@ class MPlayer:
 
         elif event == PAUSE or event == PLAY:
             self.app.write('pause\n')
+            self.playerGUI.pause()
             return True
 
         elif event == SEEK:
             self.app.write('seek %s\n' % event.arg)
+            self.playerGUI.seek(event.arg)
             return True
+
+        elif event == NEXT:
+            self.playerGUI.next()
+            return self.item.eventhandler(event)
+
 
         else:
             # everything else: give event to the items eventhandler

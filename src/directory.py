@@ -801,8 +801,12 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             item_menu = menu.Menu(self.name, items, reload_func=self.reload,
                 item_types=self.skin_display_type, force_skin_layout=self.DIRECTORY_FORCE_SKIN_LAYOUT)
 
+            # a special case for audio items, this allows to display righ aligned track length (for example)
+            if self.display_type == 'audio' and config.DIRECTORY_AUDIO_MENU_TABLE:
+                item_menu.table = config.DIRECTORY_AUDIO_MENU_TABLE
+    
             if self.skin_fxd:
-                item_menu.skin_settings = skin.load(self.skin_fxd)
+                item_menu.skin_settings = skin.load(self.skin_fxd, False)
 
             menuw.pushmenu(item_menu)
 

@@ -362,7 +362,7 @@ class ArchiveItem(DirItem):
                 return
 
         except (ZipError, RarError, TarError) as exc:
-            _debug_('Archive %s error: %s' % (self.archive, exc), 1)
+            logger.warning('Archive %s error: %s', self.archive, exc)
             self.valid = False
             osd.get_singleton().busyicon.stop()
             DirItem.build(self, arg, menuw)

@@ -34,6 +34,7 @@ logger = logging.getLogger("freevo.image.imageitem")
 import util
 import os
 import time
+import datetime
 import kaa.metadata as mmpython
 
 import config
@@ -61,6 +62,7 @@ class ImageItem(Item):
         if self.mode == 'file':
             self.image = self.filename
         self.duration = duration
+        self.exif_thumbnail = config.IMAGE_USE_EXIF_THUMBNAIL
 
 
     def __getitem__(self, key):
@@ -70,15 +72,19 @@ class ImageItem(Item):
         #_debug_("__getitem__(self=%s, key=%s)" % (self.filename, key), 2)
         if key == "geometry":
             if self['width'] and self['height']:
-                return '%sx%s' % (self['width'], self['height'])
+                return config.IMAGE_GEOMETRY_FORMAT % (self['width'], self['height'])
             return ''
 
         if key == "date":
             try:
                 t = str(Item.__getitem__(self, key))
-                if t:
-                    return time.strftime(config.TV_DATETIME_FORMAT,
-                                         time.strptime(t, '%Y:%m:%d %H:%M:%S'))
+                if t and t != '':
+                    return time.strftime(config.IMAGE_DATETIME_FORMAT,
+                                         time.strptime(str(t), '%Y:%m:%d %H:%M:%S'))
+                else:
+                    # last resort, try timestamp
+                    t = Item.__getitem__(self, 'timestamp')
+                    return datetime.datetime.fromtimestamp(t)
             except:
                 pass
 

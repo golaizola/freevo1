@@ -243,6 +243,24 @@ class Info_Area(Skin_Area):
 
         rg = range(len(list))
         for i in rg:
+            if isinstance(list[ i ], xml_skin.FormatImg):
+                if list[ i ].srcexpr:
+                    exp = list[ i ].srcexpr
+                    try:
+                        exp = eval(exp, {"__builtins__":None}, item)
+                        if not isstring(exp):
+                            exp = str(exp)
+                        if exp:
+                            list[ i ].src = xml_skin.search_file(exp, list[ i ].search_dirs)
+                            ret_list += [ index + [ i ] ]
+                    except Exception as e:
+                        logger.info('Failed to evalutate image expression \"%s\" %s', list[ i ].srcexpr, e)
+                      
+                else:
+                    # if there is no srcexpr we add it to the list unconditionally
+                    ret_list += [ index + [ i ] ]
+                continue       
+    
             if isinstance(list[ i ], xml_skin.FormatIf):
                 if list[ i ].expression_analized == 0:
                     list[ i ].expression_analized = 1
