@@ -28,7 +28,7 @@
 Freevo audio player GUI
 """
 import logging
-logger = logging.getLogger("freevo.audio.player")
+logger = logging.getLogger("freevo.player")
 
 from gui.GUIObject import GUIObject
 
@@ -38,6 +38,7 @@ import rc
 import plugin
 import dialog
 import dialog.dialogs
+import audio
 
 from event import *
 
@@ -117,14 +118,32 @@ class PlayerGUI(GUIObject):
         else:
             self.paused = False
             if self.visible and dialog.is_dialog_supported():
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info)
                 self.dialog.show()
 
             if self.visible:
                 rc.add_app(self.player)
 
             self.refresh()
+
+
+    def show(self):
+        logger.debug('show() self.visible=%r', self.visible)
+        if not self.visible:
+            self.visible = True
+            self.refresh()
+            rc.add_app(self.player)
+            if self.dialog:
+                self.dialog.show()
+            elif dialog.is_dialog_supported():
+                if self.paused:
+                    self.dialog = audio.show_play_state(dialog.PLAY_STATE_PAUSE, 
+                        self.item, self.get_time_info)
+                else:
+                    self.dialog = audio.show_play_state(dialog.PLAY_STATE_PLAY, 
+                        self.item, self.get_time_info)
+                self.dialog.show()
 
 
     def try_next_player(self):
@@ -147,71 +166,83 @@ class PlayerGUI(GUIObject):
         return 0
 
     def pause(self):
+        logger.debug('pause()')
         self.paused = not self.paused
         if self.visible and self.dialog:
             if self.paused:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PAUSE, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_PAUSE, 
+                    self.item, self.get_time_info)
             else:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info)
             self.dialog.show()
  
 
     def next(self):
+        logger.debug('next()')
         self.paused = False
         if self.visible and self.dialog: 
-            self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_SEEK_FORWARD, 
-                self.item, self.get_time_info, type='full')
+            self.dialog = audio.show_play_state(dialog.PLAY_STATE_SEEK_FORWARD, 
+                self.item, self.get_time_info)
+            self.dialog.show()
+
+
+    def prev(self):
+        logger.debug('prev()')
+        self.paused = False
+        if self.visible and self.dialog: 
+            self.dialog = audio.show_play_state(dialog.PLAY_STATE_SEEK_BACK, 
+                self.item, self.get_time_info)
             self.dialog.show()
 
 
     def seek(self, dir):
+        logger.debug('seek(dir=%r)', dir)
         self.paused = False
         if self.visible and self.dialog:
             if dir > 0:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_FFORWARD, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_FFORWARD, 
+                    self.item, self.get_time_info)
             else:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_REWIND, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_REWIND, 
+                    self.item, self.get_time_info)
             self.dialog.show()
             self.seeking = 2
 
 
     def stop(self, restore_menu=False):
         logger.debug('stop(restore_menu=%r)', restore_menu)
+
+        if self.visible and self.dialog and restore_menu: 
+            self.dialog = audio.show_play_state(dialog.PLAY_STATE_STOP, 
+                self.item, self.get_time_info)
+            self.dialog.show()
+
         global _player_
         _player_ = None
         self.player.stop()
         self.running = False
+
         if self.visible:
             rc.remove_app(self.player)
-            skin.draw('player', self.item, transition=skin.TRANSITION_OUT)
-            if self.dialog:
-                self.dialog.hide()
-                self.dialog.finish()
-                self.dialog = None
+            if restore_menu:
+                skin.draw('player', self.item, transition=skin.TRANSITION_OUT)
+                self.visible = False
+                if self.dialog:
+                    self.dialog.hide()
+                    self.dialog.finish()
+                    self.dialog = None
 
         if self.menuw and not self.menuw.visible and restore_menu:
             self.menuw.show()
 
 
-    def show(self):
-        logger.debug('show()')
-        if not self.visible:
-            self.visible = True
-            self.refresh()
-            rc.add_app(self.player)
-            if self.dialog:
-                self.dialog.show()
-
-
     def hide(self):
-        logger.debug('hide()')
+        logger.debug('hide() self.visible=%r', self.visible)
         if self.visible:
+            skin.draw('player', self.item, transition=skin.TRANSITION_OUT)
             self.visible = False
-            skin.clear()
+            # skin.clear()
             rc.remove_app(self.player)
             if self.dialog:
                 self.dialog.hide()
@@ -249,11 +280,11 @@ class PlayerGUI(GUIObject):
                 return
 
             if self.paused:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PAUSE, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_PAUSE, 
+                    self.item, self.get_time_info)
             else:
-                self.dialog = dialog.dialogs.PlayStateDialog(dialog.PLAY_STATE_PLAY, 
-                    self.item, self.get_time_info, type='full')
+                self.dialog = audio.show_play_state(dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info)
 
             self.dialog.show()
             self.seeking = -1

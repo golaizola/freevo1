@@ -110,6 +110,16 @@ def isfile(name):
     return overlay and os.path.isfile(overlay)
 
 
+def isdir(name):
+    """
+    return if the given name is a file
+    """
+    if os.path.isdir(name):
+        return True
+    overlay = getoverlay(name)
+    return overlay and os.path.isfile(overlay)
+
+
 def unlink(name):
     absname = abspath(name)
     if not absname:

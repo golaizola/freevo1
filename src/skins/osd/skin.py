@@ -387,7 +387,7 @@ class OSDText(OSDObject):
 class OSDImage(OSDObject):
     def __init__(self, pos, size, image, expr, image_expr=None, scale=None, valign='top', halign='left'):
         OSDObject.__init__(self, pos, size)
-        logger.log( 9, 'OSDImage (%s,%s) %sx%s "%s" "%s" "%s" "%s"', pos[0], pos[1], size[0], size[1], image, expr, image_expr, scale)
+        logger.log(9, 'OSDImage (%s,%s) %sx%s "%s" "%s" "%s" "%s"', pos[0], pos[1], size[0], size[1], image, expr, image_expr, scale)
         self.image_name = image
         self.image_expr = image_expr
         self.image = None

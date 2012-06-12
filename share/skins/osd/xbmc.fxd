@@ -7,20 +7,16 @@
     <version>1.0</version>
 
     <osd name="volume" x="0" y="0" width="800" height="600">
-
       <image name="volume_bg" x="0" y="0" width="800" height="600" expression="True" scale="noscale" align="left" valign="top" src="percent_bar_bg.png"/>
       <percent name="volume_bar" x="150" y="555" width="500" height="45" expression="float(volume)/100.0" src="percent_bar.png" vertical="False"/>
       <image name="volume_icon" x="5" y="565" width="30" height="30" expression="True" scale="both" align="left" valign="top" src="volume.png"/>
       <image name="volume_icon_muted" x="5" y="565" width="30" height="30" expression="muted" scale="both" align="left" valign="top" src="volume_mute.png"/>
       <text name="percentage" x="10" y="563" width="780" height="30" expression="'%d%%' % volume" font="menu" align="right" valign="top"/>
-
     </osd>
     <osd name="play_state" x="0" y="0" width="800" height="600">
-
       <image name="back_top" x="0" y="0" width="800" height="80" expression="True" scale="both" align="left" valign="bottom" src="media_info_back_upper.png"/>
-      <image name="back_bottom" x="0" y="460" width="800" height="140" expression="True" scale="both" align="left" valign="bottom" src="media_info_back_lower.png"/>
+      <image name="back_bottom" x="0" y="455" width="800" height="145" expression="True" scale="both" align="left" valign="bottom" src="media_info_back_lower.png"/>
       <text name="info_time" x="10" y="7" width="780" height="30" expression="time" font="clock" align="right" valign="top"/>
-
       <image name="nexttrack_nf" x="470" y="10" width="50" height="50" expression="state != 'seekforward'" scale="aspect" align="left" valign="bottom" src="osd_nexttrack_nf.png"/>
       <image name="nexttrack_fo" x="470" y="10" width="50" height="50" expression="state == 'seekforward'" scale="aspect" align="left" valign="bottom" src="osd_nexttrack_fo.png"/>
       <image name="ffwd_nf" x="435" y="10" width="50" height="50" expression="state != 'fastforward'" scale="aspect" align="left" valign="bottom" src="osd_ffwd_nf.png"/>
@@ -29,39 +25,35 @@
       <image name="play_fo" x="400" y="10" width="50" height="50" expression="state == 'play'" scale="aspect" align="left" valign="bottom" src="osd_play_fo.png"/>
       <image name="pause_fo" x="400" y="10" width="50" height="50" expression="state == 'pause'" scale="aspect" align="left" valign="bottom" src="osd_pause_fo.png"/>
       <image name="stop" x="365" y="10" width="50" height="50" expression="True" scale="aspect" align="left" valign="bottom" src="osd_stop_nf.png"/>
+      <image name="stop_fo" x="365" y="10" width="50" height="50" expression="state == 'stop'" scale="aspect" align="left" valign="bottom" src="osd_stop_fo.png"/>
       <image name="rewind_nf" x="330" y="10" width="50" height="50" expression="state != 'rewind'" scale="aspect" align="left" valign="bottom" src="osd_rewind_nf.png"/>
       <image name="rewind_fo" x="330" y="10" width="50" height="50" expression="state == 'rewind'" scale="aspect" align="left" valign="bottom" src="osd_rewind_fo.png"/>
       <image name="prevtrack_nf" x="295" y="10" width="50" height="50" expression="state != 'seekback'" scale="aspect" align="left" valign="bottom" src="osd_prevtrack_nf.png"/>
       <image name="prevtrack_fo" x="295" y="10" width="50" height="50" expression="state == 'seekback'" scale="aspect" align="left" valign="bottom" src="osd_prevtrack_fo.png"/>
-
-      <image name="info_cover" x="20" y="360" width="150" height="230" expression="image" scale="aspect" align="left" valign="bottom" srcexpr="'%s' % image"/>
-      <text name="info_status" x="180" y="470" width="600" height="30" expression="'Now Playing'" font="videomsg" align="left" valign="top"/>
-      <text name="info_artist" x="180" y="493" width="520" height="20" expression="mode == 'audio' and artist" font="videoruntime" align="left" valign="top"/>
-      <text name="info_title" x="180" y="515" width="600" height="30" expression="title" font="videotitle" align="left" valign="top"/>
-      <text name="info_track" x="180" y="493" width="600" height="30" expression="mode == 'audio' and ((trackno != '' and trackof != '' and ('Track ' + trackno + ' of ' + trackof)) or (trackno != '' and trackof == '' and ('Track ' + trackno)) or '')" font="videoruntime" align="right" valign="top"/>
-
-      <image name="video_mode" x="520" y="475" width="64" height="24" expression="mode == 'video' and video_mode" scale="both" align="right" valign="top" srcexpr="'flagging/video/%s' % video_mode"/>
-      <image name="video_codec" x="582" y="478" width="48" height="18" expression="mode == 'video' and video_codec" scale="both" align="right" valign="top" srcexpr="'flagging/video/%s' % video_codec"/>
-      <image name="video_aspect" x="632" y="475" width="48" height="24" expression="mode == 'video' and aspect" scale="both" align="right" valign="top" srcexpr="'flagging/aspectratio/%s' % aspect"/>
-      <image name="audio_channels" x="682" y="478" width="48" height="18" expression="mode == 'video' and audio_channels" scale="both" align="right" valign="top" srcexpr="'flagging/audio/%s' % audio_channels"/>
-      <image name="audio_codec" x="732" y="478" width="48" height="18" expression="audio_codec" scale="both" align="right" valign="top" srcexpr="'flagging/audio/%s' % audio_codec"/>
-
-      <image name="progress_back" x="180" y="550" width="600" height="16" expression="True" scale="both" align="left" valign="bottom" src="osd_progress_back.png"/>
-      <percent name="seek_bar" x="180" y="550" width="600" height="16" expression="percent" src="osd_progress_mid.png" vertical="False"/>
-      <text name="current_time" x="180" y="565" width="600" height="30" expression="current_time_str" font="videoruntime" align="left" valign="top"/>
-      <text name="total_time" x="180" y="565" width="600" height="30" expression="total_time_str" font="videoruntime" align="right" valign="top"/>
-
+      <image name="info_cover" x="20" y="435" width="160" height="160" expression="mode == 'audio' and image" scale="aspect" align="left" valign="bottom" srcexpr="'%s' % image"/>
+      <image name="info_cover" x="20" y="365" width="150" height="230" expression="mode == 'video' and image" scale="aspect" align="left" valign="bottom" srcexpr="'%s' % image"/>
+      <text name="info_status" x="180" y="467" width="600" height="30" expression="'Now Playing'" font="videomsg" align="left" valign="top"/>
+      <text name="info_artist" x="180" y="503" width="520" height="20" expression="mode == 'audio' and artist" font="videoruntime" align="left" valign="top"/>
+      <text name="info_title" x="180" y="525" width="600" height="30" expression="title" font="videotitle" align="left" valign="top"/>
+      <text name="info_track" x="180" y="503" width="600" height="30" expression="mode == 'audio' and ((trackno != '' and trackof != '' and ('Track ' + trackno + ' of ' + trackof)) or (trackno != '' and trackof == '' and ('Track ' + trackno)) or '')" font="videoruntime" align="right" valign="top"/>
+      <image name="mpaa_rating" x="524" y="473" width="47" height="30" expression="mode == 'video' and mpaa_rating" scale="both" align="right" valign="center" srcexpr="'flagging/ratings/%s' % mpaa_rating"/>
+      <image name="video_mode" x="576" y="473" width="30" height="30" expression="mode == 'video' and video_mode" scale="both" align="right" valign="center" srcexpr="'flagging/video/%s' % video_mode"/>
+      <image name="video_codec" x="611" y="473" width="47" height="30" expression="mode == 'video' and video_codec" scale="both" align="right" valign="center" srcexpr="'flagging/video/%s' % video_codec"/>
+      <image name="video_aspect" x="663" y="473" width="30" height="30" expression="mode == 'video' and aspect" scale="both" align="right" valign="center" srcexpr="'flagging/aspectratio/%s' % aspect"/>
+      <image name="audio_channels" x="698" y="473" width="30" height="30" expression="mode == 'video' and audio_channels" scale="both" align="right" valign="center" srcexpr="'flagging/audio/%s' % audio_channels"/>
+      <image name="audio_codec" x="733" y="473" width="47" height="30" expression="audio_codec" scale="both" align="right" valign="center" srcexpr="'flagging/audio/%s' % audio_codec"/>
+      <image name="progress_back" x="180" y="560" width="600" height="16" expression="True" scale="both" align="left" valign="bottom" src="osd_progress_back.png"/>
+      <percent name="seek_bar" x="180" y="560" width="600" height="16" expression="percent" src="osd_progress_mid.png" vertical="False"/>
+      <text name="current_time" x="180" y="575" width="600" height="30" expression="current_time_str" font="videoruntime" align="left" valign="top"/>
+      <text name="total_time" x="180" y="575" width="600" height="30" expression="total_time_str" font="videoruntime" align="right" valign="top"/>
     </osd>
-
     <osd name="play_state_mini" x="0" y="400" width="800" height="150">
-
       <image name="info_cover" x="665" y="0" width="115" height="150" expression="image" scale="both" align="right" valign="bottom" srcexpr="'%s' % image"/>
       <text name="message" x="0" y="20" width="650" height="30" expression="'Now Playing'" font="audiomsg" align="right" valign="center"/>
       <text name="info_artist" x="0" y="50" width="650" height="30" expression="artist" font="audioartist" align="right" valign="center"/>
       <text name="info_title" x="0" y="75" width="650" height="30" expression="title" font="audiotitle" align="right" valign="center"/>
       <text name="info_album" x="0" y="100" width="650" height="30" expression="year == '' and album or (album + ' (' + year + ')')" font="audioalbum" align="right" valign="center"/>
       <text name="current_time" x="0" y="125" width="650" height="30" expression="current_time_str and (current_time_str + ' / ' + total_time_str) or ''" font="audioruntime" align="right" valign="center"/>
-
     </osd>
 
     <font label="videomsg" name="DefaultCaps.ttf" size="16" color="blue"/>
@@ -69,7 +61,6 @@
     <font label="videoartist" name="DefaultCaps.ttf" size="15" color="white"/>
     <font label="videoalbum" name="DejaVuSans.ttf" size="16" color="gray"/>
     <font label="videoruntime" name="DefaultCaps.ttf" size="15" color="gray"/>
-
     <font label="audiomsg" name="DefaultCaps.ttf" size="16" color="blue"/>
     <font label="audiotitle" name="DefaultCaps.ttf" size="16" color="white"/>
     <font label="audioartist" name="DefaultCaps.ttf" size="15" color="white"/>
@@ -201,9 +192,9 @@
       <image name="Image3" x="200" y="140" width="100" height="100" expression="indeterminate" scale="aspect" align="left" valign="top" srcexpr="'misc/osd_busy%02d' % (counter % 12)"/>
     </osd>
 
-    <osd name="status" x="25" y="490" width="750" height="40">
-      <image name="Background" x="0" y="0" width="750" height="40" expression="True" scale="both" align="left" valign="top" src="message_bg.png"/>
-      <text name="Message" x="5" y="0" width="740" height="40" expression="message" font="message" align="left" valign="center"/>
+    <osd name="status" x="200" y="200" width="400" height="200">
+      <image name="Background" x="0" y="0" width="400" height="200" expression="True" scale="both" align="left" valign="top" src="status_bg.png"/>
+      <text name="Message" x="5" y="5" width="390" height="190" expression="message" font="message" align="center" valign="center"/>
     </osd>
 
     <osd name="shutdown" x="150" y="200" width="500" height="250">

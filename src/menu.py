@@ -168,6 +168,13 @@ class Menu:
         return skin.items_per_page(('menu', self))
 
 
+    def set_skin_fxd(self, item):
+        """
+        return the number of items per page for this skin
+        """
+        if hasattr(item, 'skin_fxd') and item.skin_fxd:
+            self.skin_settings = skin.load(item.skin_fxd)
+
 
 class MenuWidget(GUIObject):
     """
@@ -414,7 +421,7 @@ class MenuWidget(GUIObject):
     def pushmenu(self, menu):
         self.menustack.append(menu)
         self.set_event_context()
-        
+
         if isinstance(menu, Menu):
             menu.page_start = 0
             self.init_page()
@@ -454,7 +461,7 @@ class MenuWidget(GUIObject):
 
 
     def make_submenu(self, menu_name, actions, item):
-        #print 'make_submenu(menu_name=%r, actions=%r, item=%r)' % (menu_name, actions, item)
+        logger.log(9, 'make_submenu(menu_name=%r, actions=%r, item=%r)', menu_name, actions, item)
         items = []
         for a in actions:
             if isinstance(a, Item):
@@ -474,7 +481,10 @@ class MenuWidget(GUIObject):
             elif hasattr(item, 'type'):
                 i.display_type = item.type
 
-        s = Menu(menu_name, items, fxd_file=fxd_file)
+        display_type = item['skin_display_type']
+
+        logger.debug('in make_submenu for menu=%s, fxd_file=%r, item.type=%r', menu_name, fxd_file if fxd_file else 'no fxd', display_type)
+        s = Menu(menu_name, items, fxd_file=fxd_file, item_types = str('%s default' % display_type).strip())
         s.is_submenu = True
         self.pushmenu(s)
 

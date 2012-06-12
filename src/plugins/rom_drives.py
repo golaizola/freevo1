@@ -647,12 +647,12 @@ class Identify_Thread(threading.Thread):
         if info['mime'] == 'audio/cd':
             media.id = disc_id = info['id']
             media.item = AudioDiskItem(disc_id, parent=None, devicename=media.devicename, display_type='audio')
-            media.type = 'audio'
+            media.type = 'audiocd'
             media.item.media = media
             if info['title']:
                 media.item.name = info['title']
             media.item.info = disc_info
-            logger.debug('playing audio in drive %r', media.devicename)
+            logger.debug('playing %r in drive %r', media.type, media.devicename)
             return
 
         image = title = movie_info = more_info = fxd_file = None
@@ -711,7 +711,7 @@ class Identify_Thread(threading.Thread):
             media.type = info['mime'][6:]
 
             media.item.info.mmdata = info
-            logger.debug('playing video in drive %r', media.devicename)
+            logger.debug('playing %r in drive %r', media.type, media.devicename)
             return
 
         # Disc is data of some sort. Mount it to get the file info

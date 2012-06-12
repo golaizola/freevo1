@@ -197,6 +197,11 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         if vfs.isfile(self.folder_fxd):
             self.set_fxd_file(self.folder_fxd)
 
+#        self.skin_fxd = util.getskinfxd(self.dir)
+#        logger.debug('dir %s has skin fxd %s', self.dir, self.skin_fxd)
+#        if self.skin_fxd:
+#            self.skin_settings = skin.load(self.skin_fxd, False)
+
         # Check mimetype plugins if they want to add something
         for p in plugin.mimetype(display_type):
             p.dirinfo(self)
@@ -207,6 +212,9 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         # create some extra info
         if create_metainfo:
             self.create_metainfo()
+
+        self.title = self.name
+        self.name  = self.format_name(self.name)
 
 
     def __str__(self):
@@ -260,10 +268,13 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         logger.log( 9, 'read_folder_fxd(fxd=%r, node=%r)', fxd, node)
         if node.name == 'skin':
             self.skin_fxd = self.folder_fxd
+            if config.SKIN_LOAD_FXD_FOR_ITEMS:
+                self.skin_settings = skin.load(self.skin_fxd, False)
             return
 
         # read attributes
         self.name = Unicode(fxd.getattr(node, 'title', self.name))
+
         image = fxd.getattr(node, 'cover-img')
         if image and vfs.isfile(os.path.join(self.dir, image)):
             self.image = os.path.join(self.dir, image)
@@ -271,6 +282,8 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             image = fxd.childcontent(node, 'cover-img')
             if image and vfs.isfile(os.path.join(self.dir, image)):
                 self.image = os.path.join(self.dir, image)
+
+        self.display_type = fxd.getattr(node, 'display-type', None)
 
         # parse <info> tag
         fxd.parse_info(fxd.get_children(node, 'info', 1), self, {'description': 'content', 'content': 'content' })
@@ -313,6 +326,11 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             if child.name == 'setvar':
                 node.children.remove(child)
 
+        fxd.setattr(node, 'title', self['title'])
+        
+        if self.display_type:
+            fxd.setattr(node, 'display-type', self.display_type)
+
         # add current vars as setvar
         for v in self.modified_vars:
             if self.__is_type_list_var__(v):
@@ -329,6 +347,35 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         """
         return the specific attribute
         """
+        if key == 'display_type':
+            display_type = None
+
+            if hasattr(self, 'display_type') and self.display_type:
+                display_type = self.display_type
+
+            if display_type == 'tv':
+                display_type = 'video'
+
+            return display_type
+
+        if key == 'canonical_display_type':
+            display_type = 'all'
+
+            if hasattr(self, 'display_type') and self.display_type:
+                display_type = self.display_type
+
+            return display_type
+
+        if key == 'skin_display_type':
+            display_type = 'default'
+
+            if hasattr(self, 'skin_display_type') and self.skin_display_type:
+                display_type = self.skin_display_type
+            else:
+                display_type = self['canonical_display_type']
+
+            return display_type
+
         if key == 'type':
             if self.media and hasattr(self.media, 'label'):
                 return _('Directory on disc [%s]') % self.media.label
@@ -346,6 +393,12 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
                 display_type = 'video'
             return self['num_%s_items' % display_type]
 
+        if key == 'num_total_items':
+            display_type = self.display_type
+            if self.display_type == 'tv':
+                display_type = 'video'
+            return self['num_%s_total_items' % display_type]
+
         if key in ('freespace', 'totalspace'):
             if self.media:
                 return None
@@ -362,6 +415,20 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
                         'totalspace': util.human_size(t)}))
 
         return Item.__getitem__(self, key)
+
+
+    def __setitem__(self, key, value):
+        """
+        Set the attribute of an Directory
+        @param key: name of attribute
+        @param value: new value of the attribute
+        """
+        # force the setting of the url item through the function set_url
+        if key=='title':
+            self.title = value
+            self.name  = self.format_name(value)
+        else:
+            Item.__setitem__(self, key, value)
 
 
     def eventhandler(self, event, menuw=None):
@@ -395,6 +462,78 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         return Playlist.eventhandler(self, event, menuw)
 
 
+    def get_play_items_recursive(self, display_type):
+        types = [ 'video', 'audio', 'image', 'games' ]
+        items = []
+        num_total_play_items = 0
+        
+        if display_type == 'tv':
+            display_type = 'video'
+            
+        if display_type == 'all':
+            for display_type in types:
+                for p in plugin.mimetype(display_type):
+                    items += p.suffix()
+        else:
+            for p in plugin.mimetype(display_type):
+                items += p.suffix()
+
+        if items.count('fxd'):
+            items.remove('fxd')
+            
+        files = util.match_files_recursively(self.dir, items)
+        num_total_play_items = len(files)
+            
+        logger.log(9, 'recursive total playable files %d for dir=%r', num_total_play_items, self.dir)
+        return num_total_play_items
+
+
+    def format_name(self, name):
+        """ Return a formatted string for use in item.py """
+        # Since we can't specify the length of the integer in the
+        # format string (Python doesn't seem to recognize it) we
+        # strip it out first, when we see the only thing that can be
+        # a number.
+
+        if name and hasattr(self, 'display_type') and self.display_type and config.DIRECTORY_DIR_MENU_TABLE:
+            display_type = self.display_type
+            if not display_type:
+                display_type = 'all'
+                
+            type_map   = { 'video': 'Videos', 'tv': 'Episodes', 'audio': 'Tracks', 'image': 'Images', 'games': 'Games', 'all': 'Items' }
+            video_info = {  'n'  : name,
+                            't'  : self['title'],
+                            'e'  : '%s %s' % (self.format(self['num_total_items'], 0, '%d'), type_map[display_type]),
+                            'f'  : self['name'],
+                         }
+
+            if hasattr(self.parent, 'DIRECTORY_DIR_FORMAT_STRING'):
+                formatstring = unicode(self.parent.DIRECTORY_DIR_FORMAT_STRING)
+            else:
+                formatstring = unicode(config.DIRECTORY_DIR_FORMAT_STRING)
+ 
+            formatted_info = formatstring % video_info
+
+            logger.log(9, 'formatted_info=%r', formatted_info)
+ 
+            # check if the video info was not empty
+            if formatted_info != (formatstring % { 'n' : '', 't' : '', 'e' : '', 'f' : '' }):
+                return formatted_info.strip()
+
+        # fallback to current video name
+        if self.name:
+            return self.name
+
+        # last fallback: return filename
+        return os.path.split(self.filename)[1]
+
+
+    def format(self, src, alt, fmt=None):
+        if src:
+            return fmt % src if fmt else src
+        return alt
+
+
     # ======================================================================
     # metainfo
     # ======================================================================
@@ -404,10 +543,8 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         create some metainfo for the directory
         """
         display_type = self.display_type
-
-        if self.display_type == 'tv':
+        if display_type == 'tv':
             display_type = 'video'
-
         name = display_type or 'all'
 
         # check autovars
@@ -415,7 +552,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             if var == 'num_%s_timestamp' % name:
                 break
         else:
-            self.autovars += [ ('num_%s_timestamp' % name, 0), ('num_%s_items' % name, 0) ]
+            self.autovars += [ ('num_%s_timestamp' % name, 0), ('num_%s_items' % name, 0), ('num_%s_total_items' % name, 0) ]
 
         try:
             timestamp = os.stat(self.dir)[stat.ST_MTIME]
@@ -446,6 +583,15 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             self['num_dir_items'] = num_dir_items
             self['num_%s_items' % name] = num_play_items
             self['num_%s_timestamp' % name] = timestamp
+            total_play_items = self.get_play_items_recursive(name)
+
+            # some items such as archives are not walkable, hence no way to 
+            # calculate total number of playable items in the directory tree.
+            logger.debug('self.name=%r, display_type=%r, total_play_items=%r, num_play_items=%r, num_dir_items=%r', 
+                    self.name, name, total_play_items, num_play_items, num_dir_items)
+            if total_play_items < num_play_items + num_dir_items:
+                total_play_items = num_play_items + num_dir_items
+            self['num_%s_total_items' % name] = total_play_items
 
             if self.media:
                 self.media.umount()
@@ -463,9 +609,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         if self.media:
             self.media.mount()
 
-        display_type = self.display_type
-        if self.display_type == 'tv':
-            display_type = 'video'
+        display_type = self['display_type']
 
         items = [ (self.cwd, _('Browse directory')) ]
 
@@ -484,7 +628,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
 
         items.append((self.configure, _('Configure directory'), 'configure'))
 
-        if self.folder_fxd:
+        if hasattr(self, 'self.folder_fxd'):
             items += fxditem.mimetype.get(self, [self.folder_fxd])
 
         if self.media:
@@ -600,7 +744,6 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         build the items for the directory
         """
         logger.log( 9, 'build(arg=%r, menuw=%r)', arg, menuw)
-        print('build(arg=%r, menuw=%r)' % (arg, menuw))
         self.menuw      = menuw
         self.playlist   = []
         self.play_items = []
@@ -724,7 +867,6 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             self.play_items.sort(lambda l, o: cmp(l.sort().upper(), o.sort().upper()))
 
         self['num_dir_items'] = len(self.dir_items)
-
         self['num_%s_items' % display_type] = len(self.play_items) + len(self.pl_items)
 
         if self.DIRECTORY_REVERSE_SORT:
@@ -746,7 +888,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
 
         # random playlist (only active for audio)
         if self.display_type and self.display_type in self.DIRECTORY_ADD_RANDOM_PLAYLIST and len(self.play_items) > 1:
-            pl = Playlist(_('Random playlist'), self.play_items, self, random=True)
+            pl = Playlist(_('Random Playlist'), self.play_items, self, random=True)
             pl.autoplay = True
             items = [ pl ] + items
 
@@ -799,12 +941,24 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         else:
             # normal menu build
             item_menu = menu.Menu(self.name, items, reload_func=self.reload,
-                item_types=self.skin_display_type, force_skin_layout=self.DIRECTORY_FORCE_SKIN_LAYOUT)
+                item_types=self['skin_display_type'], force_skin_layout=self.DIRECTORY_FORCE_SKIN_LAYOUT)
 
             # a special case for audio items, this allows to display righ aligned track length (for example)
             if self.display_type == 'audio' and config.DIRECTORY_AUDIO_MENU_TABLE:
                 item_menu.table = config.DIRECTORY_AUDIO_MENU_TABLE
     
+            # a special case for video items, this allows to display righ aligned track length (for example)
+            elif self.display_type in ['video', 'tv'] and config.DIRECTORY_VIDEO_MENU_TABLE:
+                item_menu.table = config.DIRECTORY_VIDEO_MENU_TABLE
+
+            # a special case for audio items, this allows to display righ aligned track length (for example)
+            elif self.display_type == 'image' and config.DIRECTORY_IMAGE_MENU_TABLE:
+                item_menu.table = config.DIRECTORY_IMAGE_MENU_TABLE
+
+            elif config.DIRECTORY_DIR_MENU_TABLE:
+                item_menu.table = config.DIRECTORY_DIR_MENU_TABLE
+                logger.debug('self.display_type=%r, table=%r', self.display_type, item_menu.table)
+
             if self.skin_fxd:
                 item_menu.skin_settings = skin.load(self.skin_fxd, False)
 
@@ -837,15 +991,15 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         """
         logger.log( 9, 'configure_set_name(name=%r)', name)
         if name in self.modified_vars:
-            if name == 'FORCE_SKIN_LAYOUT':
-                return 'ICON_RIGHT_%s_%s' % (str(getattr(self, arg)),
-                                             str(getattr(self, arg)))
+            if name == 'DIRECTORY_FORCE_SKIN_LAYOUT':
+                return 'ICON_RIGHT_%s_%s' % (str(getattr(self, name)),
+                                             str(getattr(self, name)))
             elif getattr(self, name):
                 return 'ICON_RIGHT_ON_' + _('on')
             else:
                 return 'ICON_RIGHT_OFF_' + _('off')
         else:
-            if name == 'FORCE_SKIN_LAYOUT':
+            if name == 'DIRECTORY_FORCE_SKIN_LAYOUT':
                 return 'ICON_RIGHT_OFF_' + _('off')
             else:
                 return 'ICON_RIGHT_AUTO_' + _('auto')
@@ -856,7 +1010,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         Update the variable in arg and change the menu. This function is used by
         'configure'
         """
-        logger.log( 9, 'configure_set_var(arg=%r, menuw=%r)', arg, menuw)
+        logger.debug('configure_set_var(arg=%r, menuw=%r)', arg, menuw)
 
         # get current value, None == no special settings
         if arg in self.modified_vars:
@@ -873,13 +1027,18 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         # get the max value for toggle
         max = 1
 
+        display_type = self.display_type
+        if display_type and display_type == 'tv':
+            display_type = 'video'
+
         # for DIRECTORY_FORCE_SKIN_LAYOUT max = number of styles in the menu
-        if arg == 'FORCE_SKIN_LAYOUT':
-            if self.display_type and skin.get_settings().menu.has_key(self.display_type):
-                area = skin.get_settings().menu[self.display_type]
+        if arg == 'DIRECTORY_FORCE_SKIN_LAYOUT':
+            if display_type and skin.get_settings()._menu.has_key(display_type):
+                area = skin.get_settings()._menu[display_type]
             else:
-                area = skin.get_settings().menu['default']
+                area = skin.get_settings()._menu['default']
             max = len(area.style) - 1
+            logger.debug('max=%r', max)
 
         # switch from no settings to 0
         if current == None:
@@ -892,7 +1051,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         # inc variable
         elif current < max:
             if self.__is_type_list_var__(arg):
-                setattr(self, arg, [self.display_type])
+                setattr(self, arg, [display_type])
             else:
                 setattr(self, arg, current+1)
 
@@ -915,7 +1074,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             parser.set_handler('folder', self.write_folder_fxd, 'w', True)
             parser.save()
         except:
-            print "fxd file %s corrupt" % self.folder_fxd
+            logger.warning('fxd file %s corrupt', self.folder_fxd)
             traceback.print_exc()
 
         # rebuild menu
@@ -928,19 +1087,35 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         """
         change display type from specific to all
         """
-        logger.log( 9, 'configure_set_display_type(arg=%r, menuw=%r)', arg, menuw)
-        if self.display_type:
+        logger.debug('configure_set_display_type(arg=%r, menuw=%r)', arg, menuw)
+
+        display_types = [ 'default', 'video', 'tv', 'audio', 'image', 'games', 'all' ]
+        display_type  = display_types[(display_types.index(arg) + 1) % len(display_types)]
+
+        if display_type == 'all':
             self['show_all_items'] = True
-            self.display_type = None
-            name = u'\tICON_RIGHT_ON_' + _('on')
+            self.display_type      = None
+        elif display_type == 'default':
+            self['show_all_items'] = False
+            self.display_type      = self.parent.display_type
         else:
             self['show_all_items'] = False
-            self.display_type = self.parent.display_type
-            name = u'\tICON_RIGHT_OFF_' + _('off')
+            self.display_type      = display_type
+
+        name = u'\tICON_RIGHT_NOICON_' + _(display_type)
 
         # create new item with updated name
         item = copy.copy(menuw.menustack[-1].selected)
         item.name = item.name[:item.name.find(u'\t')]  + name
+        item.arg  = display_type
+
+        try:
+            parser = util.fxdparser.FXD(self.folder_fxd)
+            parser.set_handler('folder', self.write_folder_fxd, 'w', True)
+            parser.save()
+        except:
+            logger.warning('fxd file %s corrupt', self.folder_fxd)
+            traceback.print_exc()
 
         # rebuild menu
         menuw.menustack[-1].choices[menuw.menustack[-1].choices.index(menuw.menustack[-1].selected)] = item
@@ -963,18 +1138,16 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             items.append(mi)
 
         if self.parent and self.parent.display_type:
-            if self.display_type:
-                name = u'\tICON_RIGHT_OFF_' + _('off')
-            else:
-                name = u'\tICON_RIGHT_ON_' + _('on')
-
-            mi = menu.MenuItem(_('Show all kinds of items') + name, self.configure_set_display_type)
+            name = u'\tICON_RIGHT_NOICON_' + _(self['canonical_display_type'])
+            mi = menu.MenuItem(_('Show all kinds of items') + name, 
+                self.configure_set_display_type, self['canonical_display_type'])
             mi.description = _('Show video, audio and image items in this directory')
             items.append(mi)
 
-        m = menu.Menu(_('Configure'), items)
-        m.table = (80, 20)
-        m.back_one_menu = 2
+        m = menu.Menu(_('Configure'), items, fxd_file=self.skin_fxd)
+        m.table         = config.DIRECTORY_DIR_MENU_TABLE
+        m.back_one_menu = config.DIRECTORY_MENU_BACK_STEPS
+        m.item_types    = '%s default' % self['skin_display_type']
         menuw.pushmenu(m)
 
 

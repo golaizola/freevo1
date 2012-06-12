@@ -16,17 +16,35 @@
       <image name="back_trans" x="0" y="0" width="800" height="600" expression="True" scale="noscale" align="left" valign="top" src="back_trans.png"/>
       <image name="back" x="0" y="0" width="800" height="600" expression="state == 'info'" scale="noscale" align="left" valign="top" src="back.png"/>
       <image name="info_cover" x="0" y="114" width="800" height="368" expression="state == 'info' and image" scale="aspect" align="right" valign="center" srcexpr="'%s' % image"/>
-      <image name="play_pause_seek" x="20" y="7" width="30" height="30" expression="True" scale="both" align="left" valign="top" srcexpr="'%s.png' % state"/>
+      <image name="play_pause_seek" x="20" y="7" width="45" height="60" expression="True" scale="both" align="left" valign="top" srcexpr="'%s.png' % state"/>
       <text name="info_time" x="10" y="7" width="780" height="30" expression="time" font="clock" align="right" valign="top"/>
       <text name="info_title" x="15" y="200" width="585" height="30" expression="state == 'info' and title" font="clock" align="left" valign="top"/>
       <text name="info_tagline" x="15" y="230" width="430" height="90" expression="state == 'info' and tagline" font="menu" align="left" valign="top"/>
       <text name="info_year" x="15" y="320" width="500" height="30" expression="state == 'info' and year" font="menu" align="left" valign="top"/>
       <text name="info_genre" x="15" y="350" width="500" height="30" expression="state == 'info' and genre" font="menu" align="left" valign="top"/>
       <text name="info_rating" x="15" y="380" width="500" height="30" expression="state == 'info' and rating" font="menu" align="left" valign="top"/>
+      <text name="info_mpaa" x="15" y="440" width="320" height="60" expression="state == 'info' and mpaa" font="menu" align="left" valign="top"/>
       <text name="info_runtime" x="15" y="410" width="320" height="60" expression="state == 'info' and runtime" font="menu" align="left" valign="top"/>
       <percent name="seek_bar" x="150" y="540" width="500" height="60" expression="percent" src="percent_bar.png" vertical="False"/>
-      <text name="current_time" x="10" y="563" width="780" height="30" expression="current_time_str" font="menu" align="left" valign="top"/>
-      <text name="total_time" x="10" y="563" width="780" height="30" expression="total_time_str" font="menu" align="right" valign="top"/>
+      <text name="current_time" x="10" y="563" width="780" height="30" expression="current_time_str" font="runtime" align="left" valign="top"/>
+      <text name="total_time" x="10" y="563" width="780" height="30" expression="total_time_str" font="runtime" align="right" valign="top"/>
+      <image name="audio_cover" x="130" y="220" width="200" height="230" expression="mode == 'audio' and image" scale="aspect" align="left" valign="bottom" srcexpr="'%s' % image"/>
+      <text name="audio_status" x="360" y="220" width="400" height="30" expression="mode == 'audio' and 'Now Playing'" font="audiomsg" align="left" valign="top"/>
+      <text name="artist" x="360" y="280" width="70" height="30" expression="mode == 'audio' and 'Artist:'" font="audioartist" align="left" valign="top"/>
+      <text name="audio_artist" x="430" y="280" width="370" height="30" expression="mode == 'audio' and artist" font="audioartist" align="left" valign="top"/>
+      <text name="title" x="360" y="310" width="70" height="30" expression="mode == 'audio' and 'Title:'" font="audiotitle" align="left" valign="top"/>
+      <text name="audio_title" x="430" y="310" width="370" height="30" expression="mode == 'audio' and title" font="audiotitle" align="left" valign="top"/>
+      <text name="year" x="360" y="340" width="70" height="30" expression="mode == 'audio' and 'Year:'" font="audioruntime" align="left" valign="top"/>
+      <text name="audio_year" x="430" y="340" width="370" height="30" expression="mode == 'audio' and year" font="audioruntime" align="left" valign="top"/>
+      <text name="audio_track" x="360" y="370" width="440" height="30" expression="mode == 'audio' and ((trackno != '' and trackof != '' and ('Track ' + trackno + ' of ' + trackof)) or (trackno != '' and trackof == '' and ('Track ' + trackno)) or '')" font="audioruntime" align="left" valign="top"/>
+    </osd>
+    <osd name="play_state_mini" x="0" y="400" width="800" height="150">
+      <image name="info_cover" x="665" y="0" width="115" height="150" expression="image" scale="both" align="right" valign="bottom" srcexpr="'%s' % image"/>
+      <text name="message" x="0" y="20" width="650" height="30" expression="'Now Playing'" font="audiomsg" align="right" valign="center"/>
+      <text name="info_artist" x="0" y="50" width="650" height="30" expression="artist" font="audioartist" align="right" valign="center"/>
+      <text name="info_title" x="0" y="75" width="650" height="30" expression="title" font="audiotitle" align="right" valign="center"/>
+      <text name="info_album" x="0" y="100" width="650" height="30" expression="year == '' and album or (album + ' (' + year + ')')" font="audioalbum" align="right" valign="center"/>
+      <text name="current_time" x="0" y="123" width="650" height="30" expression="current_time_str and (current_time_str + ' / ' + total_time_str) or ''" font="audioruntime" align="right" valign="center"/>
     </osd>
     <osd name="message" x="10" y="62" width="780" height="40">
       <image name="Background" x="0" y="0" width="780" height="40" expression="True" scale="both" align="left" valign="top" src="message_bg.png"/>
@@ -127,6 +145,13 @@
     <font label="menu" name="DejaVuSans-Bold" size="12" color="white"/>
     <font label="menu_selected" name="DejaVuSans-Bold" size="12" color="white"/>
     <font label="menu_pressed" name="DejaVuSans-Bold" size="12" color="black"/>
+    <font label="runtime" name="DejaVuSans-Bold" size="16" color="white"/>
+    <font label="audiomsg" name="DefaultCaps.ttf" size="16" color="blue"/>
+    <font label="audiotitle" name="DejaVuSans.ttf" size="18" color="white"/>
+    <font label="audioartist" name="DejaVuSans.ttf" size="17" color="white"/>
+    <font label="audioalbum" name="DejaVuSans.ttf" size="16" color="white"/>
+    <font label="audioruntime" name="DejaVuSans.ttf" size="14" color="white"/>
+    <color label="blue" value="104,255,254,255"/>
     <color label="white" value="255,255,255,255"/>
     <color label="gray" value="96,96,96,255"/>
     <color label="black" value="0,0,0,255"/>

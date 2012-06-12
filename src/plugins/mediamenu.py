@@ -188,7 +188,7 @@ class MediaMenu(Item):
                                                  display_type=self.display_type,
                                                  add_args=add_args)
                         if title:
-                            item.name = title
+                            item['title'] = title
                         self.normal_items.append(item)
                     else:
                         if not vfs.isfile(filename):
@@ -223,6 +223,22 @@ class MediaMenu(Item):
                               item_types='%s main menu' % self.display_type,
                               umount_all=1, reload_func=self.reload)
         item_menu.skin_force_text_view = force_text_view
+
+        # a special case for audio items, this allows to display righ aligned track length (for example)
+        if self.display_type == 'audio' and config.DIRECTORY_AUDIO_MENU_TABLE:
+            item_menu.table = config.DIRECTORY_AUDIO_MENU_TABLE
+
+        # a special case for video items, this allows to display righ aligned track length (for example)
+        elif self.display_type in ['video', 'tv'] and config.DIRECTORY_VIDEO_MENU_TABLE:
+            item_menu.table = config.DIRECTORY_VIDEO_MENU_TABLE
+
+        # a special case for audio items, this allows to display righ aligned track length (for example)
+        elif self.display_type == 'image' and config.DIRECTORY_IMAGE_MENU_TABLE:
+            item_menu.table = config.DIRECTORY_IMAGE_MENU_TABLE
+
+        elif config.DIRECTORY_DIR_MENU_TABLE:
+            item_menu.table = config.DIRECTORY_DIR_MENU_TABLE
+
         self.menuw = menuw
         menuw.pushmenu(item_menu)
 

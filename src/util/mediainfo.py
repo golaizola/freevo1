@@ -306,14 +306,69 @@ class MMCache(Cache):
         return ret
 
 
-    def normalize(self, info):
+    
+    def normalize(self, info, debug=0):
         """
         we resolve fourcc values to the ones we can use
         """
+        if info.has_key('video') and info.has_key('height') and info['height']:
+            height = info['height']
+            if height > 720:
+                height = 1080
+            elif height <= 480:
+                height = 480
+            else:
+                height = 720
+            info['video_mode'] = height
+         
+        aspect = 0.0
+        
+        if info.has_key('video') and info.has_key('aspect'):
+            aspect = round(info['aspect'], 2)
+
+        if info.has_key('video') and not info.has_key('aspect') and \
+                info.has_key('width') and info.has_key('height'):
+            aspect = round(float(info['width']) / float(info['height']), 2)
+
+        if aspect > 2.2:
+            aspect = 2.35
+        elif aspect <= 1.33:
+            aspect = 1.33
+        elif aspect > 1.33 and aspect <= 1.85:
+            aspect = 1.85
+        else:
+            aspect = 2.20
+
+        info['aspect'] = '%.2f' % aspect
+
+        if not info.has_key('audio_channels'):
+            info['audio_channels'] = 0
+
+        if info['audio_channels'] == 5:
+            info['audio_channels'] = 6
+
+        try:
+            if info.has_key('video_fourcc'):
+                info['video_fourcc'] = info['video_fourcc'].upper()
+                info['video_codec'] = config.MEDIA_VIDEO_FOURCC_MAP[info['video_fourcc']]
+        except KeyError:
+            info['video_codec'] = info['video_fourcc']
+            logger.warning('Unknown video fourcc %s, add mapping to your local_config.py please', info['video_fourcc'])
+            pass
+
+        try:
+            if info.has_key('audio_fourcc'):
+                #info['audio_fourcc'] = info['audio_fourcc'].upper()
+                info['audio_codec'] = config.MEDIA_AUDIO_FOURCC_MAP[info['audio_fourcc']]
+        except KeyError:
+            info['audio_codec'] = info['audio_fourcc']
+            logger.warning('Unknown audio fourcc %s, add mapping to your local_config.py please', info['audio_fourcc'])
+            pass
+
         if info.has_key('video') and info.has_key('fps'):
             fps = round(float(info['fps']), 3)
             info['fps'] = '%.3f' % fps
-           
+
         return info
 
 
@@ -347,6 +402,25 @@ class MMCache(Cache):
                         if video.has_key(variable) and not \
                            (info.has_key(variable) and info[variable]):
                             info[variable] = video[variable]
+
+                for video in info['video']:
+                    for variable in ('codec', 'fps', 'fourcc'):
+                        if video.has_key(variable) and not \
+                           (info.has_key('video_%s' % variable) and info['video_%s' % variable]):
+                            info['video_%s' % variable] = video[variable]
+
+            if info.has_key('audio'):
+                for audio in info['audio']:
+                    for variable in ('channels', 'codec', 'fourcc', 'samplerate'):
+                        if audio.has_key(variable) and not \
+                           (info.has_key('audio_%s' % variable) and info['audio_%s' % variable]):
+                            info['audio_%s' % variable] = audio[variable]
+
+            if info.has_key('media') and info['media'] == 'MEDIA_AUDIO':
+                for variable in ('codec', 'fourcc', 'samplerate'):
+                    if info.has_key(variable) and not \
+                       (info.has_key('audio_%s' % variable) and info['audio_%s' % variable]):
+                        info['audio_%s' % variable] = info[variable]
 
             if thumbnail and config.IMAGE_USE_EXIF_THUMBNAIL and config.CACHE_IMAGES:
                 util.cache_image(filename, thumbnail)

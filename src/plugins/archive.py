@@ -2,8 +2,6 @@
 # -----------------------------------------------------------------------
 # Freevo Archive file (zip, tar and rar) handling
 # -----------------------------------------------------------------------
-# $Id: $
-#
 # Notes:  To use RAR file handling you must install both 'unrar' utility 
 #         and python rar module. This plugin has been tested with version 
 #         2.5 of python rarfile. It can be downloaded from:
@@ -432,7 +430,7 @@ class ArchiveItem(DirItem):
             if var == 'num_%s_timestamp' % name:
                 break
         else:
-            self.autovars += [ ('num_%s_timestamp' % name, 0), ('num_%s_items' % name, 0) ]
+            self.autovars += [ ('num_%s_timestamp' % name, 0), ('num_%s_items' % name, 0), ('num_%s_total_items' % name, 0) ]
 
         try:
             timestamp = os.stat(self.dir)[stat.ST_MTIME]
@@ -483,6 +481,16 @@ class ArchiveItem(DirItem):
             self['num_dir_items'] = num_dir_items
             self['num_%s_items' % name] = num_play_items
             self['num_%s_timestamp' % name] = timestamp
+
+            total_play_items = DirItem.get_play_items_recursive(self, name)
+
+            # some items such as archives are not walkable, hence no way to 
+            # calculate total number of playable items in the directory tree.
+            logger.debug('self.name=%r, display_type=%r, total_play_items=%r, num_play_items=%r, num_dir_items=%r', 
+                    self.name, name, total_play_items, num_play_items, num_dir_items)
+            if total_play_items < num_play_items + num_dir_items:
+                total_play_items = num_play_items + num_dir_items
+            self['num_%s_total_items' % name] = total_play_items
 
             if self.media:
                 self.media.umount()

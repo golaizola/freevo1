@@ -763,6 +763,11 @@ try:
 except:
     plugin.activate('mixer')
 
+
+# ======================================================================
+# IMDB plugin settings
+# ======================================================================
+#
 # add imdb search to the video item menu
 plugin.activate('video.imdb')
 
@@ -789,12 +794,44 @@ IMDB_AUTOACCEPT_SINGLE_HIT = True
 # Use the local file lenght or runtime value from IMDB?
 IMDB_USE_IMDB_RUNTIME = False
 
+# IMDB MPAA ratings and TV certifications used by the MPAA parser
+IMDB_MPAA_RATINGS = [ 'TV-Y', 'G', 'TV-Y7', 'TV-Y7-FV', 'TV-G', 'PG', 'TV-PG', 'PG-13', 'TV-14', 'TV-MA', 'R', 'NC-17', 'Unrated']
+IMDB_MPAA_EXTINFO = [ 'All children ages 2-5',
+                      'General Audiences',
+                      'Directed to children 7 and older',
+                      'Directed to children 7 and older with fantasy violence in shows',
+                      'General audience',
+                      'Parental Guidance Suggested',
+                      'Parental guidance suggested',
+                      'Parents Strongly Cautioned',
+                      'Parents strongly cautioned/May be unsuitable for children under 14 years of age',
+                      'Mature audience - unsuitable for audiences under 17',
+                      'Restricted',
+                      'No One 17 and under admitted',
+                      'Not rated' ]
+
+#Map older rating types to their modern equivalents
+IMDB_MPAA_RATEMAP = { 'M':         'NC-17',
+                      'X':         'NC-17',
+                      'GP':        'PG',
+                      'Approved':  'PG',
+                      'Open':      'PG',
+                      'Not Rated': 'Unrated' }
+
+
+# ======================================================================
+# Subtitles plugin settings
+# ======================================================================
+#
 # add subtitle search to the video item menu
 plugin.activate('video.subtitles')
 plugin.activate('video.subtitles.napiprojekt')
 plugin.activate('video.subtitles.opensubtitles')
 SUBS_LANGS    = { 'eng': ('English') }
 
+# ======================================================================
+#
+# ======================================================================
 # delete file in menu
 plugin.activate('file_ops', level=20)
 
@@ -816,6 +853,7 @@ if CONF.fbxine:
 # make it possible to detach the player
 plugin.activate('audio.detach', level=20)
 plugin.activate('audio.detachbar')
+#plugin.activate('audio.detachdialog')
 
 plugin.activate('audio.playlists')
 
@@ -979,7 +1017,75 @@ DIRECTORY_FORCE_SKIN_LAYOUT = -1
 # This will show the title and the track number:
 # DIRECTORY_AUDIO_FORMAT_STRING = '%(n)s - %(t)s'
 #
+# This will display track number, title and right aligned length
+# Requires DIRECTORY_AUDIO_MENU_TABLE to be set to (85, 15) for example
+# DIRECTORY_AUDIO_FORMAT_STRING = '%(n)s %(t)s\tICON_RIGHT_RUNTIME_%(r)s'
 DIRECTORY_AUDIO_FORMAT_STRING = '%(t)s'
+
+# Sets table for audio menu items, useful for displaying track lenght for example
+# See above. Default None.
+# DIRECTORY_AUDIO_MENU_TABLE = (85, 15)
+DIRECTORY_AUDIO_MENU_TABLE = None
+
+# Format string for the directory listing
+#
+# Possible strings:
+# n=name, t=title, e=num of items, f=filename
+#
+# This will display track number, title and right aligned length
+# Requires DIRECTORY_AUDIO_MENU_TABLE to be set to (85, 15) for example
+#
+DIRECTORY_DIR_FORMAT_STRING = '%(t)s\tICON_RIGHT_NOICON_%(e)s'
+DIRECTORY_DIR_MENU_TABLE    = (80, 20)
+
+# Format string for the audio item names.
+#
+# Possible strings:
+# a=artist, l=album, n=tracknumber, t=title, y=year, f=filename, r=length
+#
+# This will display track number, title and right aligned length
+# Requires DIRECTORY_AUDIO_MENU_TABLE to be set to (85, 15) for example
+#
+DIRECTORY_AUDIO_FORMAT_STRING = '%(n)s  %(t)s\tICON_RIGHT_NOICON_%(r)s'
+
+# Sets table for audio menu items, useful for displaying track lenght for example
+#
+# DIRECTORY_AUDIO_MENU_TABLE = (80, 20)
+
+# Format string for the video item names.
+#
+# Possible strings:
+# n=name, t=title, e=episode, s=season, f=filename, r=length
+#
+# This will display track number, title and right aligned length
+# Requires DIRECTORY_AUDIO_MENU_TABLE to be set to (85, 15) for example
+#
+DIRECTORY_VIDEO_FORMAT_STRING = '%(e)s  %(t)s\tICON_RIGHT_NOICON_%(r)s'
+
+# Sets table for video menu items, useful for displaying track lenght for example
+#
+# DIRECTORY_VIDEO_MENU_TABLE    = (70, 30)
+
+# Format string for the image item names.
+#
+# Possible strings:
+# n=name, t=title, e=num of items, f=filename
+#
+# This will display track number, title and right aligned length
+# Requires DIRECTORY_AUDIO_MENU_TABLE to be set to (85, 15) for example
+#
+DIRECTORY_IMAGE_FORMAT_STRING = '%(t)s\tICON_RIGHT_NOICON_%(e)s'
+
+# Sets table for image menu items, useful for displaying number of images etc.
+#
+# DIRECTORY_IMAGE_MENU_TABLE    = (75, 25)
+
+# How many steps back to take when exit the dir config menu, i.e. natural is 
+# to go back one menu but Freevo does not apply the changes until you reenter 
+# the directory again, hence the default is to go back one more level and reenter
+# the directory for changes to be applied.
+#
+DIRECTORY_MENU_BACK_STEPS     = 2
 
 #
 # Use media id tags to generate the name of the item. This should be
@@ -1022,6 +1128,53 @@ DIRECTORY_ADD_RANDOM_PLAYLIST = [ 'audio' ]
 # subdirectories are in the directory
 #
 DIRECTORY_AUTOPLAY_ITEMS      = [ ]
+
+#
+# maps video fourcc vaues as reported my kaa.metadata to the unified equivalents.
+# If you ever get mapping error at runtime, check out the log and add the mapping
+#
+MEDIA_VIDEO_FOURCC_MAP = { 
+                        "AVC1":  "h264",
+                        "DAVC":  "h264",
+                        "H264":  "h264",
+                        "X264":  "h264",
+                        "VSSH":  "h264",
+                        "FMP4":  "xvid",
+                        "XVID":  "xvid",
+                        "XVIX":  "xvid",
+                        "DX50":  "divx",
+                        "DIVX":  "divx",
+                        "DIV1":  "divx",
+                        "DIV3":  "divx",
+                        "AP41":  "divx",
+                        "MPEG":  "mpeg1video",
+                        "MP2V":  "mpeg2video",
+                        "WMV1":  "wvc1",
+                        "WMV2":  "wvc1",
+                        "WMV3":  "wvc1"
+                        }
+
+#
+# maps audio fourcc vaues as reported my kaa.metadata to the unified equivalents.
+# If you ever get mapping error at runtime, check out the log and add the mapping
+#
+MEDIA_AUDIO_FOURCC_MAP = { 
+                        "0x50"    :"mp1",
+                        "0x55"    :"mp3",
+                        "0xff"    :"aac",
+                        "0x160"   :"wma",
+                        "0x161"   :"wma",
+                        "0x162"   :"wmapro",
+                        "0x163"   :"wmapro",
+                        "0x2001"  :"dts",
+                        "0x2000"  :"ac3",
+                        "MP4A"    :"aac",
+                        "MP2A"    :"mp2",
+                        "MPEG"    :"mp1",
+                        "0xf1ac"  :"flac"
+                        }
+
+
 
 # ----------------------------------------------------------------------
 # Archive plugin
@@ -1193,6 +1346,18 @@ IMAGE_SSHOW_SUFFIX = [ 'ssr' ]
 # eg IMAGE_EXCLUDE = [('thm', 'tn_')]
 
 IMAGE_EXCLUDE = None
+
+# Format of the date string
+#
+IMAGE_DATETIME_FORMAT = '%a, %b %d, %Y %H:%M' # Thursday, September 24 16:54
+
+#
+# Format of the geometry string
+# Depending on the on screen font, it maybe not very readable to display
+# for example like this 1280x720, it may be more readable like this 1280 x 720
+#
+#IMAGE_GEOMETRY_FORMAT = '%s x %s'
+IMAGE_GEOMETRY_FORMAT = '%sx%s'
 
 #
 # Mode of the blending effect in the image viewer between two images
@@ -1392,6 +1557,21 @@ SKIN_USE_PAGE_TRANSITIONS = False
 #
 SKIN_GUIDE_SHOW_NOW_LINE = True
 
+# Loads skin fxd for individual items such as videoitems or audio items.
+# By default this is disabled as performance is poor (skin gets reloaded 
+# for each item in the dir) as well as there are issues with style switching
+# Will be dealt with with subsequent release.
+#
+SKIN_LOAD_FXD_FOR_ITEMS = False
+
+# Some items like videoitem displays screen for movie detais and hardcodes 
+# a lot of details.This tell the item that skin does handle all. In the future
+# oneclick weathger will be converted to use this variable thius making the 
+# dialogs fully skinnable.
+#
+#
+SKIN_HANDLES_DETAILS = False
+
 # ======================================================================
 # Freevo LCD Plugin settings:
 # ======================================================================
@@ -1432,6 +1612,13 @@ OSD_EXTRA_FONT_PATH = [ '/usr/X11R6/lib/X11/fonts/truetype/' ]
 #
 OSD_FONT_ALIASES = { 'arial_bold.ttf' : 'DejaVuSans-Bold.ttf' }
 
+# If enabled sends 'info' state to the OSD dialog, otherwise will send 'play'
+# or 'pause' (depending on current state. Somne skins (like xbmc) do not use 'info'
+# state. Default value is True for backward compatibility.
+#
+OSD_TOGGLE_STATE_INFO = 1
+
+#
 #
 # Number of seconds to wait until the busy icon is shown in the menu.
 # Busy icon can also be shown right away when there is more than a certain
@@ -1608,8 +1795,13 @@ TVTIME_CMD = CONF.tvtime
 # ======================================================================
 # MPlayer settings:
 # ======================================================================
-
 MPLAYER_CMD = CONF.mplayer
+
+#
+# mplayer version, either 1 for classic mplayer or 2 for the mplayer2 fork
+# from http://www.mplayer2.org. mplayer2 has some advanced improvements over 
+# the original. Try it out!
+MPLAYER_VERSION  = 2
 
 MPLAYER_AO_DEV = 'oss:/dev/dsp'    # e.g.: oss,sdl,alsa, see mplayer docs
 MPLAYER_AO_DEV_OPTS = ''           # e.g.: 'some_var=vcal'
@@ -2296,7 +2488,7 @@ RSS_AUDIO = 'you must set RSS_AUDIO in your local_conf.py'
 # Config for xml support in the movie browser
 # the regexp has to be with ([0-9]|[0-9][0-9]) so we can get the numbers
 #
-VIDEO_SHOW_REGEXP = "s?([0-9]|[0-9][0-9])[xe]([0-9]|[0-9][0-9])[^0-9]"
+VIDEO_SHOW_REGEXP = "[sS]?([0-9]|[0-9][0-9])[xXeE]([0-9]|[0-9][0-9])[^0-9]"
 
 
 #

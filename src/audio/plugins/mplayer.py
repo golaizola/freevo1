@@ -203,7 +203,7 @@ class MPlayer:
         eventhandler for mplayer control. If an event is not bound in this
         function it will be passed over to the items eventhandler
         """
-        #print('%s.eventhandler=%s' % (self.__module__, event))
+        logger.debug('%s.eventhandler=%s', self.__module__, event)
         try:
             for p in self.plugins:
                 if p.eventhandler(event):
@@ -244,10 +244,13 @@ class MPlayer:
             self.playerGUI.seek(event.arg)
             return True
 
-        elif event == NEXT:
+        elif (event == PLAYLIST_NEXT) or event == NEXT:
             self.playerGUI.next()
             return self.item.eventhandler(event)
 
+        elif (event == PLAYLIST_PREV) or event == PREV:
+            self.playerGUI.prev()
+            return self.item.eventhandler(event)
 
         else:
             # everything else: give event to the items eventhandler

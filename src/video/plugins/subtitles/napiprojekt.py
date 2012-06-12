@@ -2,8 +2,6 @@
 # -----------------------------------------------------------------------
 # Plug-in for napiprojekt support
 # -----------------------------------------------------------------------
-# $Id: $
-#
 # Notes: napiprojekt plugin. 
 #        You can donwload subtitles from the http://napiprojekt.pl
 #        with this plugin. Only two langauges supported, Polish and English.

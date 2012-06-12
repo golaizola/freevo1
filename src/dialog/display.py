@@ -113,8 +113,8 @@ class Display(object):
          - seekforward
          - slow
          - fast
-	 - info 
-	@param item: The item we play. Can be a FreevoChannels item or a VideoItem.
+         - info 
+        @param item: The item we play. Can be a FreevoChannels item or a VideoItem.
         @param get_time_info: A function to call to retrieve information about the
         current position and total play time, or None if not available. The function
         will return a tuple of total time and elapsed time.
@@ -342,7 +342,7 @@ class GraphicsDisplay(Display):
 
                 logger.debug('Closing dialog priority %s', priority)
 
-                for priority in range(priority - 1, dialogs.Dialog.LOW_PRIORITY, -1):
+                for priority in range(priority - 1, dialogs.Dialog.LOW_PRIORITY - 1 , -1):
                     logger.debug('Checking priority %s', priority)
                     waiting = self.waiting[priority]
                     if waiting:

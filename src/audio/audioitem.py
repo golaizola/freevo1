@@ -61,15 +61,23 @@ class AudioItem(Item):
 
         self.mplayer_options = ''
 
+        if name:
+            self.name = name
+
+        if self.parent and hasattr(self.parent, 'DIRECTORY_USE_MEDIAID_TAG_NAMES') and \
+                self.parent.DIRECTORY_USE_MEDIAID_TAG_NAMES:
+            self.info.store('title',  self.format(self['title'],   self.name))
+            self.info.store('artist', self.format(self['artist'], 'Unknown Artist'))
+            self.info.store('album',  self.format(self['album'],  'Unknown Album'))
+            self.info.store('year',   self.format(self['year'],   'Unknown Year'))
+
         try:
             self.length = int(self.info['length'])
         except:
             self.length = 0
 
-        if name:
-            self.name = name
-        else:
-            self.name = self.format_track()
+        self.title = self.name
+        self.name  = self.format_name()
 
         # Let's try to find if there is any image in the current directory
         # that could be used as a cover
@@ -213,7 +221,13 @@ class AudioItem(Item):
         self.player.stop()
 
 
-    def format_track(self):
+    def format(self, src, alt, fmt=None):
+        if src:
+            return src
+        return alt
+        
+        
+    def format_name(self):
         """ Return a formatted string for use in item.py """
         # Since we can't specify the length of the integer in the
         # format string (Python doesn't seem to recognize it) we
@@ -228,24 +242,18 @@ class AudioItem(Item):
                 try:
                     mytrack = ('%0.2d' % int(self['trackno']))
                 except ValueError:
-                    mytrack = '  '
+                    mytrack = ''
             else:
-                mytrack = '  '
+                mytrack = ''
 
-            if self['length']:
-                try:
-                    length = self['length']
-                except ValueError:
-                    length = ''
-            else:
-                length = ''
-                
+            logger.debug('year=%s', self['year'])
+
             song_info = {  'a'  : self['artist'],
                            'l'  : self['album'],
                            'n'  : mytrack,
                            't'  : self['title'],
                            'y'  : self['year'],
-                           'r'  : length,
+                           'r'  : self['length'],
                            'f'  : self['name'] }
 
             if hasattr(self.parent, 'AUDIO_FORMAT_STRING'):
@@ -257,12 +265,13 @@ class AudioItem(Item):
 
             # check if the song info was not empty
             if formatted_info != (formatstring % { 'a' : '', 'l' : '', 'n' : '  ', 't' : '', 'y' : '', 'r' : '', 'f' : '' }):
-                return formatted_info
+                return formatted_info.strip()
 
         # fallback to current song name
         if self.name:
             return self.name
 
+        logger.debug('last resort, falling back to %s', os.path.split(self.filename)[1])
         # last fallback: return filename
         return os.path.split(self.filename)[1]
 

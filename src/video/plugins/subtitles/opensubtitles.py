@@ -2,8 +2,6 @@
 # -----------------------------------------------------------------------
 # Plug-in for opensubtitles.org support
 # -----------------------------------------------------------------------
-# $Id: $
-#
 # Notes: opensubtitles plugin. 
 #        You can donwload subtitles from the http://opensubtitles.org
 #        Check out the video.subtitles plugin for configuration options 

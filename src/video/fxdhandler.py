@@ -37,6 +37,7 @@ logger = logging.getLogger("freevo.video.fxdhandler")
 from videoitem import VideoItem
 from item import FileInformation
 import os
+import skin
 
 def parse_movie(fxd, node):
     """
@@ -85,13 +86,13 @@ def parse_movie(fxd, node):
                media_id, options, player, playlist
 
 
-    item = VideoItem('', fxd.getattr(None, 'parent', None), parse=False)
-
-    dirname  = os.path.dirname(fxd.filename)
-    image      = ''
-    title      = fxd.getattr(node, 'title')
+    item       = VideoItem('', fxd.getattr(None, 'parent', None), parse=False)
+    title      = name=fxd.getattr(node, 'title')
     item.name  = title
+    dirname    = os.path.dirname(fxd.filename)
+    image      = ''
     item.image = fxd.childcontent(node, 'cover-img')
+
     if item.image:
         try:
             item.image = vfs.abspath(os.path.join(dirname, str(item.image)))
@@ -215,8 +216,8 @@ def parse_movie(fxd, node):
             item.info.set_variables(variables)
         else:
             item.set_url(url, info=False)
-        if title:
-            item.name = title
+#        if title:
+#            item.name = title
         if player:
             item.force_player = player
         if is_playlist:
@@ -275,8 +276,7 @@ def parse_movie(fxd, node):
         except:
             pass
 
-    if fxd.is_skin_fxd:
-        item.skin_fxd = fxd.filename
+    item.name = item.parse_name(title)
     fxd.getattr(None, 'items', []).append(item)
 
 

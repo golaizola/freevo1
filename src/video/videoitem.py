@@ -93,10 +93,9 @@ class VideoItem(Item):
         @param parse: controls if the url is parsed
         @type parse: boolean
         """
-        self.autovars = []
+        self.autovars          = []
         Item.__init__(self, parent)
-        self.type = 'video'
-
+        self.type              = 'video'
         self.variants          = []
         self.subitems          = []
         self.current_subitem   = None
@@ -116,13 +115,16 @@ class VideoItem(Item):
         self.elapsed           = 0
 
         self.possible_players  = []
-        self.player        = None
-        self.player_rating = 0
+        self.player            = None
+        self.player_rating     = 0
 
         # set the url (this influences the list of possible players!)
         self.set_url(url, info=parse)
         if info:
             self.info.set_variables(info)
+
+        if parse:
+            self.name = self.parse_name(self.name)
 
         # deinterlacing and related things
         video_deinterlace = config.VIDEO_DEINTERLACE != None and config.VIDEO_DEINTERLACE or False
@@ -133,33 +135,6 @@ class VideoItem(Item):
 
         video_field_dominance = config.VIDEO_FIELD_DOMINANCE != None and config.VIDEO_FIELD_DOMINANCE or False
         self['field-dominance'] = video_field_dominance
-
-        # find image for tv show and build new title
-        if config.VIDEO_SHOW_REGEXP_MATCH(self.name) and not self.network_play and config.VIDEO_SHOW_DATA_DIR:
-
-            show_name = config.VIDEO_SHOW_REGEXP_SPLIT(self.name)
-            if show_name[0] and show_name[1] and show_name[2] and show_name[3]:
-                self.name = show_name[0] + u' ' + show_name[1] + u'x' + show_name[2] + u' - ' + show_name[3]
-                image = util.getimage((config.VIDEO_SHOW_DATA_DIR + show_name[0].lower()))
-                if self.filename and not image:
-                    image = util.getimage(os.path.join(os.path.dirname(self.filename), show_name[0].lower()))
-
-                if image:
-                    self.image = image
-
-                from video import tv_show_information
-                if tv_show_information.has_key(show_name[0].lower()):
-                    tvinfo = tv_show_information[show_name[0].lower()]
-                    self.info.set_variables(tvinfo[1])
-                    if not self.image:
-                        self.image = tvinfo[0]
-                    self.skin_fxd = tvinfo[3]
-                    self.mplayer_options = tvinfo[2]
-
-                self.tv_show       = True
-                self.show_name     = show_name
-                self.tv_show_name  = show_name[0]
-                self.tv_show_ep    = show_name[3]
 
         # extra info in discset_information
         if parent and parent.media:
@@ -173,6 +148,95 @@ class VideoItem(Item):
             self['deinterlace'] = True
         else:
             self['deinterlace'] = False
+
+
+
+    def parse_name(self, name):        
+        # find image for tv show and build new name
+        if config.VIDEO_SHOW_REGEXP_MATCH(name) and not self.network_play:
+
+            show_name = config.VIDEO_SHOW_REGEXP_SPLIT(name)
+
+            if show_name[0] and show_name[1] and show_name[2]:
+
+                ep   = config.IMDB_SEASON_EPISODE_FORMAT % (int(show_name[1]), int(show_name[2]))
+                name = '%s %s %s' % (show_name[0], ep, show_name[3])
+
+                if config.VIDEO_SHOW_DATA_DIR:
+                    image = util.getimage((config.VIDEO_SHOW_DATA_DIR + show_name[0].lower()))
+                    if self.filename and not image:
+                        image = util.getimage(os.path.join(os.path.dirname(self.filename), show_name[0].lower()))
+                    if image:
+                        self.image = image
+
+                from video import tv_show_information
+                if tv_show_information.has_key(show_name[0].lower()):
+                    tvinfo = tv_show_information[show_name[0].lower()]
+                    self.info.set_variables(tvinfo[1])
+                    if not self.image:
+                        self.image = tvinfo[0]
+                    self.skin_fxd = tvinfo[3]
+                    self.mplayer_options = tvinfo[2]
+
+                self.tv_show          = True
+                self.show_name        = show_name
+                self.subtitle         = '%s - Season %s' % (show_name[0], show_name[1])
+                self.tv_show_name     = show_name[0]
+                self.tv_show_season   = show_name[1]
+                self.tv_show_episode  = show_name[2]
+                self.tv_show_title    = show_name[3]
+
+        if not hasattr(self, 'subtitle') or not self.subtitle:
+            self.subtitle = self.parent['title']
+
+        self.title = name
+        return self.format_name(name)
+
+
+    def format_name(self, name):
+        """ Return a formatted string for use in item.py """
+        # Since we can't specify the length of the integer in the
+        # format string (Python doesn't seem to recognize it) we
+        # strip it out first, when we see the only thing that can be
+        # a number.
+
+        if name and config.DIRECTORY_VIDEO_MENU_TABLE:
+            if self.tv_show:
+                video_info = {  'n'  : self.format(self.tv_show_name, name),
+                                't'  : self.format(self.tv_show_title, ''),
+                                'e'  : self.format(int(self.tv_show_episode), 0, '%0.2d'),
+                                's'  : self.format(int(self.tv_show_season), 0, '%d'),
+                                'r'  : self['length'],
+                                'f'  : self['name'],
+                             }
+            else:
+                video_info = {  'n'  : name,
+                                't'  : self['title'],
+                                'e'  : '',
+                                's'  : '',
+                                'r'  : self['length'],
+                                'f'  : self['name'],
+                             }
+
+            if hasattr(self.parent, 'DIRECTORY_VIDEO_FORMAT_STRING'):
+                formatstring = unicode(self.parent.DIRECTORY_VIDEO_FORMAT_STRING)
+            else:
+                formatstring = unicode(config.DIRECTORY_VIDEO_FORMAT_STRING)
+ 
+            formatted_info = formatstring % video_info
+
+            logger.log(9, 'formatted_info=%r', formatted_info)
+ 
+            # check if the video info was not empty
+            if formatted_info != (formatstring % { 'n' : '', 't' : '', 'e' : '', 's' : '', 'r' : '', 'f' : '' }):
+                return formatted_info.strip()
+
+        # fallback to current video name
+        if self.name:
+            return self.name
+
+        # last fallback: return filename
+        return os.path.split(self.filename)[1]
 
 
     def __str__(self):
@@ -326,6 +390,15 @@ class VideoItem(Item):
 
         @returns: the specific attribute
         """
+
+        if key == 'title':
+            if hasattr(self, 'title') and self.title:
+                return self.title
+            elif hasattr(self, 'name') and self.name:
+                return self.name
+            else:
+                return ''
+
         if not self.info:
             return ''
 
@@ -398,6 +471,26 @@ class VideoItem(Item):
                         total = ''
 
             return total
+
+        if key == 'mpaa_rating':
+            try:
+                if self.info['mpaa']:
+                    mpaa = self.info['mpaa']
+                    rating_match = re.search(r"Rated (?P<rating>[a-zA-Z0-9-]+)", mpaa)
+                    if rating_match:
+                        rating = rating_match.group('rating')
+                    else:                
+                        rating_match = re.search(r"(?P<rating>[a-zA-Z0-9-]+)", mpaa)
+                        if rating_match:
+                            rating = rating_match.group('rating')
+
+                    if rating in config.IMDB_MPAA_RATINGS:
+                        return rating.lower()
+            except:
+                pass
+                    
+            return ''
+      
 
         return Item.__getitem__(self, key)
 
@@ -499,7 +592,7 @@ class VideoItem(Item):
         if not self.menuw:
             self.menuw = menuw
         m = menu.Menu(self.name, self.variants, reload_func=None, fxd_file=self.skin_fxd)
-        m.item_types = 'video'
+        m.item_types = 'video default'
         self.menuw.pushmenu(m)
 
 
@@ -777,6 +870,7 @@ class VideoItem(Item):
         if not self.menuw:
             self.menuw = menuw
         confmenu = configure.get_menu(self, self.menuw)
+        confmenu.set_fxd_file(self)
         self.menuw.pushmenu(confmenu)
 
 
@@ -899,6 +993,11 @@ class VideoItem(Item):
         self.name=self.fxd_rename_newname
 
 
+    def format(self, src, alt, fmt=None):
+        if src:
+            return fmt % src if fmt else src
+        return alt
+
 
 ########################
 # Show Details
@@ -906,7 +1005,7 @@ import skin
 # Create the skin_object object
 skin_object = skin.get_singleton()
 if skin_object:
-    skin_object.register('tvguideinfo', ('screen', 'info', 'scrollabletext', 'plugin'))
+    skin_object.register('tvguideinfo', ('screen', 'info', 'view', 'scrollabletext', 'plugin'))
 
 # Program Info screen
 class ShowDetails(ScrollableTextScreen):
@@ -919,32 +1018,44 @@ class ShowDetails(ScrollableTextScreen):
             description = ''
         else:
             self.movie = movie
-            name = movie.name
-            sub_title = movie['tagline']
+            name = movie['title']
             desc = movie['plot']
-            # gather the info and construct the description text
-            if sub_title:
-                # subtitle + newline + description
-                description = u'"' + sub_title + u'"\n' + desc + u'\n\n'
+            
+            if config.SKIN_HANDLES_DETAILS:
+                # This is a skin that handles the details (like xbmc one) by itself.
+                # We only provide the plot then and let the skin display what it wants.
+                # The skin will handle all the rest.
+                description = desc
             else:
-                # or just the description, if there is no subtitle
-                description = desc + u'\n\n'
-            # add some additional info if they are available
-            if movie['genre']:
-                description += _('Genre') + u' : '+movie['genre'] + u'\n'
-            if movie['length']:
-                description +=  _('Length')+ u' : '+movie['length'] + u'\n'
-            if movie['year']:
-                description +=  _('Year')+u' : '+movie['year'] + u'\n'
-            if movie['rating']:
-                description +=  _('Rating')+u' : '+movie['rating'] + u'\n'
-            if movie['mpaa']:
-                description +=  _('MPAA')+u' : '+movie['mpaa'] + u'\n'
+                # OK, these are the simplistic skins that like all given on the plate
+                # let's format the description with all info necessary.
+                sub_title = movie['tagline']
+                # gather the info and construct the description text
+                if sub_title:
+                    # subtitle + newline + description
+                    description = u'"' + sub_title + u'"\n' + desc + u'\n\n'
+                else:
+                    # or just the description, if there is no subtitle
+                    description = desc + u'\n\n'
+                # add some additional info if they are available
+                if movie['genre']:
+                    description += _('Genre') + u' : '+movie['genre'] + u'\n'
+                if movie['length']:
+                    description +=  _('Length')+ u' : '+movie['length'] + u'\n'
+                if movie['year']:
+                    description +=  _('Year')+u' : '+movie['year'] + u'\n'
+                if movie['rating']:
+                    description +=  _('Rating')+u' : '+movie['rating'] + u'\n'
+                if movie['mpaa']:
+                    description +=  _('MPAA')+u' : '+movie['mpaa'] + u'\n'
 
         # that's all, we can show this to the user
         ScrollableTextScreen.__init__(self, 'tvguideinfo', description)
-        self.name            = name
+        self.name    = name
         self.visible = True
+        
+        if movie.skin_fxd:
+            self.skin_settings = skin.load(movie.skin_fxd)
 
         self.show(menuw)
 

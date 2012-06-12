@@ -38,9 +38,9 @@ import copy
 import htmlentitydefs
 from stat import *
 
-
 # Configuration file. Determines where to look for AVI/MP3 files, etc
 import config
+from fxdparser import FXD
 from vfs import abspath as vfs_abspath
 
 
@@ -226,6 +226,34 @@ def getname(file, skip_ext=True):
     if name.endswith('_'):
         name = name[:-1]
     return Unicode(name)
+
+
+def getfxd(filename):
+    """
+    Checks if fxd file exists for the item and returs it
+    """
+    if vfs.isdir(filename):
+        fxd = os.path.join(filename, 'folder.fxd')
+    else:        
+        fxd = filename[:filename.rfind('.')] + '.fxd'
+
+    return fxd if vfs.isfile(fxd) else None
+
+
+def getskinfxd(filename):
+    """
+    Checks if supplied file is an actual skin fxd
+    """
+    fxd = getfxd(filename)
+    if fxd:
+        try:
+            parser = FXD(fxd)
+            parser.parse()
+            if parser.is_skin_fxd:
+                return fxd
+        except Exception, e:
+            pass
+    return None
 
 
 def killall(appname, sig=9):
@@ -423,7 +451,7 @@ def htmlenties2txt(string, encoding="latin-1"):
             if semicolon - amp > 7:
                 continue
             try:
-                # the array has mappings like "Uuml" -> "�"
+                # the array has mappings like "Uuml" -> "?"
                 replacement = unichr(htmlentitydefs.name2codepoint[entity[1:-1]])
             except KeyError:
                 continue        
@@ -509,7 +537,7 @@ def comingup():
 
 #
 # synchronized objects and methods.
-# By Andr� Bj�rby
+# By Andr? Bj?rby
 # From http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65202
 #
 from types import *
@@ -543,6 +571,36 @@ def human_aspect_ratio (width, height):
     return ratio
 
 
+def normalize_aspect_ratio(width, height=None):
+    try:            
+        if height:
+            aspect = round(float(width) / float(height), 2)
+        else:
+            aspect = round(float(width), 2)
+
+        if aspect > 2.2:
+            aspect = 2.35
+        elif aspect <= 1.33:
+            aspect = 1.33
+        elif aspect > 1.33 and aspect <= 1.85:
+            aspect = 1.85
+        else:
+            aspect = 2.20
+    except ValueError:
+        return None
+
+    return '%.2f' % aspect
+
+
+def normalize_video_height(height):
+    if height > 720:
+        height = 1080
+    elif height <= 480:
+        height = 480
+    else:
+        height = 720
+
+    return height
 
 class _SynchronizedMethod:
 

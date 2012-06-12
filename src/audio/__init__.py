@@ -44,12 +44,43 @@ import plugin
 
 from audioitem import AudioItem
 from audiodiskitem import AudioDiskItem
+from audioplaystate import AudioPlayStateDialog
 
 
 def cover_filter(x):
     result = re.search(config.AUDIO_COVER_REGEXP, x, re.IGNORECASE)
     if result: logger.debug('cover_filter(%s): %r', x, result.group())
     return result
+
+
+def show_play_state(state, item, get_time_info=None, type='play_state'):
+    """
+    Helper function to show the playing state of audio media.
+
+    @param state: The play state can be one of the following:
+                    play
+                    pause
+                    rewind
+                    fastforward
+                    seekback
+                    seekforward
+                    slow
+                    fast
+                    info
+                    stop
+
+    @param get_time_info: A function to call to retrieve information about the
+    current position and total play time, or None if not available. The function
+    will return a tuple of elapsed time, total time and percent through the file.
+    Both total time and percent position are optional.
+
+    @param type: The type of the play state dialog
+                    play_state       - used by main audio player, default
+                    play_state_mini  - used by detached player
+    """
+    dialog = AudioPlayStateDialog(state, item, get_time_info, type)
+    dialog.show()
+    return dialog
 
 
 class PluginInterface(plugin.MimetypePlugin):
@@ -182,3 +213,5 @@ class PluginInterface(plugin.MimetypePlugin):
 
         fxd.parse_info(fxd.get_children(node, 'info', 1), a)
         fxd.getattr(None, 'items', []).append(a)
+
+

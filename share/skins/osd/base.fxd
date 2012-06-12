@@ -49,6 +49,12 @@
       <image name="Image11" x="0" y="0" width="120" height="80" expression="True" scale="noscale" align="left" valign="top" srcexpr="'%s.png' % state"/>
       <text name="Text8" x="140" y="9" width="300" height="40" expression="current_time_str and (current_time_str + ' / '+ total_time_str) or ''" font="message" align="left" valign="top"/>
     </osd>
+    <osd name="play_state_mini" x="0" y="400" width="800" height="150">
+      <text name="info_artist" x="0" y="50" width="750" height="30" expression="artist" font="audioartist" align="right" valign="center"/>
+      <text name="info_title" x="0" y="75" width="750" height="30" expression="title" font="audiotitle" align="right" valign="center"/>
+      <text name="info_album" x="0" y="100" width="750" height="30" expression="year == '' and album or (album + ' (' + year + ')')" font="audioalbum" align="right" valign="center"/>
+      <text name="current_time" x="0" y="123" width="750" height="30" expression="current_time_str and (current_time_str + ' / ' + total_time_str) or ''" font="audioruntime" align="right" valign="center"/>
+    </osd>
     <widgetstyle name="button">
       <widgetstate state="normal">
         <image name="Image12" x="0" y="0" width="width" height="height" expression="True" scale="both" align="left" valign="top" src="button_normal_bg.png"/>
@@ -114,6 +120,12 @@
     <font label="menu" name="DejaVuSans-Bold" size="12" color="white"/>
     <font label="menu_selected" name="DejaVuSans-Bold" size="12" color="white"/>
     <font label="menu_pressed" name="DejaVuSans-Bold" size="12" color="black"/>
+    <font label="audiomsg" name="DefaultCaps.ttf" size="16" color="blue"/>
+    <font label="audiotitle" name="DejaVuSans.ttf" size="18" color="white"/>
+    <font label="audioartist" name="DejaVuSans.ttf" size="17" color="white"/>
+    <font label="audioalbum" name="DejaVuSans.ttf" size="16" color="white"/>
+    <font label="audioruntime" name="DejaVuSans.ttf" size="14" color="white"/>
+    <color label="blue" value="104,255,254,255"/>
     <color label="white" value="255,255,255,255"/>
     <color label="gray" value="96,96,96,255"/>
     <color label="black" value="0,0,0,255"/>

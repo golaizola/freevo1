@@ -41,6 +41,7 @@ The priority levels in ascending order are:
 import logging
 logger = logging.getLogger("freevo.dialog.dialogs")
 import time
+import string
 from event import *
 import rc
 import event
@@ -250,7 +251,7 @@ class MessageDialog(Dialog):
         """
         super(MessageDialog, self).__init__('message', 3.0)
         self.message = message
-        self.priority = Dialog.LOW_PRIORITY
+        #self.priority = Dialog.LOW_PRIORITY
 
     def get_info_dict(self):
         return {'message': self.message}
@@ -311,7 +312,9 @@ class PlayStateDialog(Dialog):
     """
     Low priority dialog to display play state and time information.
     """
-    def __init__(self, state, item, get_time_info=None):
+    UPDATE_INTERVAL = 0.25
+
+    def __init__(self, state, item, get_time_info=None, type='play_state'):
         """
         Creates a new instance.
 
@@ -325,34 +328,43 @@ class PlayStateDialog(Dialog):
          - slow
          - fast
          - info
+         - stop
+
+        @param type: Either full or mini play state dialog. Default is full.
+         - play_state          - full size dialog, default
+         - play_state_mini     - used by detached audio player for example
+
         @param get_time_info: A function to call to retrieve information about the
         current position and total play time, or None if not available. The function
         will return a tuple of elapsed time, total time and percent through the file.
         Both total time and percent position are optional.
         """
-        super(PlayStateDialog, self).__init__('play_state', 10.0)
+        super(PlayStateDialog, self).__init__(type, 3)
+
         self.priority = Dialog.LOW_PRIORITY
-        self.state = state
-        self.item = item
-        self.get_time_info = get_time_info
-        self.update_interval = 1.0
+        self.state    = state
+        self.item     = item
+        self.mode     = 'video'
+        self.get_time_info   = get_time_info
+        self.update_interval = PlayStateDialog.UPDATE_INTERVAL
+
+        try:
+            channel = self.item.getChannel()
+            self.mode = 'tv'
+        except AttributeError:
+            self.mode = 'video'
+ 
 
     def get_info_dict(self):
+        """
+        """
         time_info = None
-
         current_time = 0
         current_time_str = ''
         total_time = 0
         total_time_str = ''
         percent_pos = 0.0
         percent_str = ''
-
-        try:
-            channel = self.item.getChannel()
-            mode = 'tv'
-        except AttributeError:
-            mode = 'video'
-
 
         if self.get_time_info:
             time_info = self.get_time_info()
@@ -380,11 +392,17 @@ class PlayStateDialog(Dialog):
                     else:
                         percent_pos = 0.0
                 percent_str = '%d%%' % (percent_pos * 100)
+        else:
+            logger.debug('no time info')
 
         attr = {}
-        if mode == 'video':
-            if self.item.parent.type == 'video':
+        if self.mode == 'video':
+            if self.item.parent.type == 'video' and hasattr(self.item.parent, 'title'):
+                attr['title'] = self.item.parent.title
+            elif self.item.parent.type == 'video':
                 attr['title'] = self.item.parent.name
+            elif hasattr(self.item, 'title'):
+                attr['title'] = self.item.title
             else:
                 attr['title'] = self.item.name
             if not attr['title']:
@@ -402,18 +420,17 @@ class PlayStateDialog(Dialog):
                 attr['image'] = None
             if not attr['image']:
                 attr['image'] = self.item.parent.image
-            if not attr['image']:
-                attr['image'] = "nocover.png" 
-            logger.debug('Cover image for %s is %s', self.item.filename, attr['image'])
+            if not attr['image']:   
+                attr['image'] = "nocover_video.png" 
 
-            attributes = ['year', 'genre', 'rating', 'runtime' ]
+            attributes = ['year', 'genre', 'rating', 'runtime', 'video_mode', 'aspect', 'video_codec', 'audio_codec', 'audio_channels', 'mpaa_rating' ]
             for attribute in attributes:
                 attr[attribute] = self.item.getattr(attribute)
                 if not attr[attribute] and self.item.parent.type == 'video':
                     attr[attribute] = self.item.parent.getattr(attribute)
                 if not attr[attribute]:
-                    attr[attribute] = "Not Available"
-                attr[attribute] = attribute.title() + ": " + attr[attribute]
+                    attr[attribute] = ''
+                # attr[attribute] = attribute.title() + ": " + attr[attribute]
         else:
             channel_number = self.item.getChannelNum()
             channel_logo = 'cover_tv.png'
@@ -438,6 +455,7 @@ class PlayStateDialog(Dialog):
         date_str = time.strftime("%Y/%m/%y", now)
 
         return {'state': self.state,
+                'mode': self.mode,
                 'title': attr['title'],
                 'image': attr['image'],
                 'tagline': attr['tagline'],
@@ -445,6 +463,12 @@ class PlayStateDialog(Dialog):
                 'genre': attr['genre'],
                 'rating': attr['rating'],
                 'runtime': attr['runtime'],
+                'aspect': str(attr['aspect']),
+                'mpaa_rating': str(attr['mpaa_rating']),
+                'video_mode': str(attr['video_mode']),
+                'video_codec': attr['video_codec'],
+                'audio_codec': attr['audio_codec'],
+                'audio_channels': attr['audio_channels'],
                 'time_raw' : now,
                 'time': time_str,
                 'date': date_str,
@@ -454,7 +478,8 @@ class PlayStateDialog(Dialog):
                 'total_time_str': total_time_str,
                 'percent': percent_pos,
                 'percent_str': percent_str,
-                }
+                } 
+                
 
 class WidgetDialog(InputDialog):
     """
@@ -799,6 +824,7 @@ class ProgressDialog(Dialog):
             dict['progress_percent'] = 0.0
             dict['counter'] = self.counter
             dict['indeterminate'] = True
+
         else:
             dict['progress_percent'] = self.progress_percent
             dict['indeterminate'] = False
@@ -812,17 +838,16 @@ class DialogUpdater(object):
         self.dialog = dialog
         self.state = 'running'
         self.timer = kaa.OneShotTimer(self.__update_dialog)
-        self.timer.start(self.dialog.update_interval)
         self.delay = self.dialog.update_interval
+        self.timer.start(self.delay)
         self.clock = pygame.time.Clock()
 
     def pause(self):
         self.timer.stop()
 
-
     def resume(self):
-        clock.tick()
-        self.start(self.delay)
+        self.clock.tick()
+        self.timer.start(self.delay)
 
     def stop(self):
         self.timer.stop()

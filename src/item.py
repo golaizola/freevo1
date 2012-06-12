@@ -44,6 +44,7 @@ import config
 from event import *
 import plugin
 import util
+import skin
 
 from util import mediainfo, vfs, Unicode
 from gui import AlertBox
@@ -357,6 +358,7 @@ class Item:
             self.filename     = self.url[7:]
             self.files.append(self.filename)
             self.mimetype = os.path.splitext(self.filename)[1][1:].lower()
+            basename      = self.filename[:self.filename.rfind('.')]
 
             if search_image:
                 image = util.getimage(self.filename[:self.filename.rfind('.')])
@@ -369,13 +371,12 @@ class Item:
                     self.image = util.getimage(imagepath, self.image)
             # TODO: is this the right place for this?
             if config.TV_RECORD_REMOVE_COMMERCIALS:
-                edlBase=self.filename[:self.filename.rfind('.')]
-                edlFile=edlBase+".edl"
-                self.edl_file=edlFile
+                edlFile = basename + ".edl"
+                self.edl_file = edlFile
                 if os.path.exists(edlFile):
-                    self.files.edl_file=edlFile
+                    self.files.edl_file = edlFile
                 else:
-                    self.files.edl_file=None
+                    self.files.edl_file = None
 
             if info:
                 self.info = mediainfo.get(self.filename)
@@ -389,6 +390,12 @@ class Item:
 
             if not self.name:
                 self.name = util.getname(self.filename)
+
+            if config.SKIN_LOAD_FXD_FOR_ITEMS:
+                self.skin_fxd = util.getskinfxd(self.filename)
+                if self.skin_fxd:
+                    self.skin_settings = skin.load(self.skin_fxd, False)
+
         else:
             # some defaults for other url types
             self.network_play = True
@@ -401,6 +408,8 @@ class Item:
         """
         set the value of 'key' to 'val'
         """
+        logger.log(9, 'setting %r to %r', key, value)
+        
         for var, val in self.autovars:
             if key == var:
                 if val == value:
@@ -532,6 +541,24 @@ class Item:
         """
         return the specific attribute
         """
+        if attr == 'display_type':
+            display_type = None
+            if hasattr(self, 'display_type') and self.display_type:
+                display_type = self.display_type
+            elif hasattr(self, 'parent') and hasattr(self.parent, 'display_type') and \
+                    self.parent.display_type:
+                display_type = self.parent.display_type
+
+            return display_type
+
+        if attr == 'title':
+            if hasattr(self, 'title') and self.title:
+                return self.title
+            elif hasattr(self, 'name') and self.name:
+                return self.name
+            else:
+                return ''
+
         if attr == 'length':
             try:
                 length = int(self.info['length'])
@@ -624,3 +651,5 @@ class Item:
                 self.name = newname
                 return True
         return False
+
+

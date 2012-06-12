@@ -1,0 +1,663 @@
+<?xml version="1.0" ?>
+<!DOCTYPE freevo-skin SYSTEM "../freevo-skin.dtd">
+<freevo>
+        <skin geometry="1280x720">
+   
+        <!-- 
+        *******************************************************
+        ** AUDIO MENU
+        ******************************************************* -->
+
+        <menu type="audio main menu">
+            <style text="audio explorer with info"/>
+        </menu>
+
+        <menu type="audio default">
+            <style text="audio listing with info no view"/>
+        </menu>
+
+        <!-- The "audio menu" -->
+        <menu type="audio">
+            <style image="audio explorer with info" text="audio listing with info"/>
+            <style text="audio listing with info"/>
+            <style text="audio explorer with info"/>
+            <style text="audio ribbon with info"/>
+        </menu>
+        
+        <!-- The "audio explorer menu without info" -->
+        <menuset label="audio explorer" inherits="item explorer">
+            <screen layout="audio screen explorer" visible="yes"/>
+        </menuset>
+
+        <!-- The "audio explorer with info" -->
+        <menuset label="audio explorer with info" inherits="audio explorer">
+            <info layout="audio explorer info" visible="yes" x="30" y="550" width="1220" height="120"/>
+        </menuset>
+
+        <!-- The "audio ribbon with info" -->
+        <menuset label="audio ribbon with info" inherits="item ribbon">
+            <screen layout="audio screen ribbon" visible="yes"/>
+            <view layout="view no border center aligned" visible="yes" x="80" y="100" scale="both" width="360" height="360"/>
+            <listing layout="audio ribbon" x="30" y="510" width="1220" height="180">
+                <image filename="up.png" label="uparrow" width="1" height="1" x="0" y="0"/>
+                <image filename="down.png" label="downarrow" width="1" height="1" x="0" y="0"/>
+            </listing>
+            <info layout="audio ribbon info" x="480" y="100" width="725" height="360"/>
+        </menuset>
+
+        <!-- The "audio listing without info" -->
+        <menuset label="audio listing" inherits="item listing">
+            <screen layout="audio screen listing" visible="yes"/>
+        </menuset>
+
+        <!-- The "audio listing with info" -->
+        <menuset label="audio listing with info" inherits="audio listing">
+            <info layout="audio listing info" x="30" y="420" width="400" height="300"/>
+        </menuset>
+
+        <!-- The "video listing without info nor view" -->
+        <menuset label="audio listing with info no view" inherits="item listing long with info">
+            <screen layout="audio screen" visible="yes"/>
+        </menuset>
+
+        <!-- 
+        *******************************************************
+        ** Audio layouts 
+        *******************************************************
+        -->
+
+    	<layout label="audio screen">
+            <background>
+                <image image="background_audio" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+            </background>
+        </layout>
+
+        <layout label="audio screen explorer">
+            <background>
+                <image image="background_audio" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="separator_vert" x="820" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="audio screen listing">
+            <background>
+                <image image="background_audio" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="separator_vert" x="448" y="40" width="6" scale="both" height="max-80" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="audio screen ribbon">
+            <background>
+                <image image="background_audio" x="0" y="0" label="background"/>
+                <image image="media_blade" x="0" y="0" width="max" scale="noscale" height="max"/>
+                <image image="panel" label="panel_movie" x="60" y="80" width="1160" height="400" scale="both"/>
+            </background>
+        </layout>
+
+        <!-- listing area for video with images -->
+        <layout label="audio ribbon">
+            <content type="image" spacing="-30" align="center">
+                <item type="default" y="max-60" width="75" height="100" align="center" valign="center">
+                <!--    <rectangle color="0x888888" bgcolor="0x950e1427" size="0" x="-5" y="-5" radius="10" width="max+10" height="max+10"/> -->
+                </item>
+                <item type="selected"  width="95" height="130" align="center" valign="center">
+                    <rectangle color="0x888888" bgcolor="0x950e1427" size="0" x="-5" y="-5" radius="10" width="max+10" height="max+10"/>
+                </item>
+            </content>
+        </layout>
+
+        <!-- listing area for audio with images -->
+        <layout label="audio list">
+            <content x="0" type="image" spacing="5">
+                <item type="default" width="80" height="112" align="center" valign="center"/>
+                <item type="selected" width="97" height="132" align="center" valign="center"/>
+            </content>
+        </layout>
+
+        <layout label="audio ribbon info">
+            <content type="text" align="center" valign="top" spacing="20">
+
+                <item type="audio">
+
+                    <if expression="artist">
+                        <text width="380" align="left" font="info title caps" mode="soft" expression="artist"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="album">
+                        <goto_pos y="10" mode="relative"/>
+                        <text width="380" align="left" font="info label grey" mode="soft" expression="album"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="title">
+                        <goto_pos y="10" mode="relative"/>
+                        <text width="380" align="left" font="info subtitle" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not album and not artist">
+                        <text width="380" align="left" font="info title caps" expression="name" mode="soft" />
+                        <newline/>
+                        <if expression="description"> <!-- e.g. webradio -->
+                            <text align="left" font="info subtitle" expression="description" height="max" mode="soft"/>
+                        </if>
+                    </if>
+                    
+                    <goto_pos y="280" mode="absolute"/>
+
+
+                    <!-- <if expression="parent(audio_advanced_sort)"> -->
+                    <if expression="trackno">
+                        <text align="left" font="info value blue">Track </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <text font="info value white" expression="trackno"/>
+                        <if expression="trackof">
+                            <text align="left" font="info value white"> of </text>
+                            <text font="info value white" expression="trackof"/>
+                        </if>
+                        <newline/>
+                    </if>
+
+                    <if expression="length">
+                        <text align="left" font="info value blue">Lenght </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <text font="info value white" expression="length"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="date">
+                        <text align="left" font="info value blue">Year </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <text font="info value white" expression="date"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="audio_codec and bitrate">
+                        <text align="left" font="info value blue">Codec </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <img width="50" height="20" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                        <goto_pos x="60" mode="relative"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                        <newline/>
+                    </if>
+                    <if expression="audio_codec and not bitrate">
+                        <text align="left" font="info value blue">Codec </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <img width="50" height="20" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                        <newline/>
+                    </if>
+                    <if expression="not audio_codec and bitrate">
+                        <text align="left" font="info value blue">Bitrate </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                        <newline/>
+                    </if>
+
+                </item>
+
+                <item type="playlist">
+                    <if expression="name">
+                        <text font="info subtitle" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="len(playlist)">
+	                <goto_pos x="0" y="340" mode="absolute"/>
+                        <text font="info value blue" expression="len(playlist)"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+
+                    <if expression="length">
+	                <goto_pos x="0" y="320" mode="absolute"/>
+                        <text align="left" font="info value blue">Lenght </text>
+                        <text font="info value white" expression="length"/>
+                    </if>
+                </item>
+
+                <!-- audio dir -->
+                <item type="default">
+
+                    <if expression="display_type == 'audio' and artist">
+                        <text align="left" font="info title caps" mode="soft" expression="artist"/>
+                    </if>
+
+                    <if expression="display_type == 'audio' and album">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                    	<text align="left" font="info label grey" mode="soft" expression="album"/>
+                    </if>
+
+                    <if expression="not type == 'playlist' and not album and not artist">
+                        <goto_pos x="0" y="0" mode="absolute"/>
+                        <text align="left" font="info title caps" expression="title"/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                    </if>
+                    <if expression="not tagline and content">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="content"/>
+                    </if>
+                    <if expression="display_type == 'audio' and length">
+                        <goto_pos x="0" y="320" mode="absolute"/>
+                        <text align="left" font="info value blue">Lenght </text>
+                        <goto_pos x="100" mode="absolute"/>
+                        <text font="info value white" expression="length"/>
+                    </if>
+                    <if expression="display_type == 'audio' and num_total_items">
+	                <goto_pos x="0" y="340" mode="absolute"/>
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+                </item>
+               
+                <item type="audiocd">
+                    <goto_pos y="20" mode="absolute"/>
+                    <if expression="title">
+                        <text font="info subtitle" expression="title"/>
+                        <newline/>
+                    </if>
+                    <if expression="artist">
+                        <goto_pos y="15" mode="relative"/>
+                        <text font="info title caps" expression="artist"/>
+                        <newline/>
+                    </if>
+                    <if expression="len(tracks)">
+	                <goto_pos x="0" y="340" mode="absolute"/>
+                        <text font="info value blue" expression="len(tracks)"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+                </item>
+            </content>
+        </layout>
+        
+        <layout label="audio listing info">
+            <content type="text" align="center" valign="top" spacing="20">
+
+                <item type="audio">
+                    <if expression="artist">
+                        <text width="380" align="center" font="info title caps" mode="soft" expression="artist"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="album">
+                        <goto_pos y="10" mode="relative"/>
+                        <text width="380" align="center" font="info label grey" mode="soft" expression="album"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="title">
+                        <goto_pos y="10" mode="relative"/>
+                        <text width="380" align="center" font="info subtitle" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not album and not artist">
+                        <text width="380" align="center" font="info title caps" expression="name" mode="soft" />
+                        <newline/>
+                        <if expression="description"> <!-- e.g. webradio -->
+                            <text align="left" font="info subtitle" expression="description" height="max" mode="soft"/>
+                        </if>
+                    </if>
+                    
+                    <goto_pos y="170" mode="absolute"/>
+
+                    <!-- <if expression="parent(audio_advanced_sort)"> -->
+                    <if expression="trackno">
+                        <text width="185" align="right" font="info value blue">Track </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="info value white" expression="trackno"/>
+                        <if expression="trackof">
+                            <text align="left" font="info value white"> of </text>
+                            <text font="info value white" expression="trackof"/>
+                        </if>
+                        <newline/>
+                    </if>
+
+                    <if expression="length">
+                        <text width="185" align="right" font="info value blue">Lenght </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="info value white" expression="length"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="date">
+                        <text width="185" align="right" font="info value blue">Year </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="info value white" expression="date"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="audio_codec and bitrate">
+                        <text width="185" align="right" font="info value blue">Codec </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <img width="50" height="20" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                        <goto_pos x="60" mode="relative"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                        <newline/>
+                    </if>
+                    <if expression="audio_codec and not bitrate">
+                        <text width="185" align="right" font="info value blue">Codec </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <img width="50" height="20" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                        <newline/>
+                    </if>
+                    <if expression="not audio_codec and bitrate">
+                        <text width="185" align="right" font="info value blue">Bitrate </text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                        <newline/>
+                    </if>
+
+                </item>
+
+                <item type="playlist"/>
+
+                <!-- audio dir -->
+                <item type="default">
+                    <if expression="display_type == 'audio' and artist">
+                        <text align="left" font="info title caps" mode="soft" expression="artist"/>
+                    </if>
+
+                    <if expression="display_type == 'audio' and album">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                    	<text align="left" font="info label grey" mode="soft" expression="album"/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                    </if>
+             
+                    <if expression="not tagline and content">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="content"/>
+                    </if>
+                </item>
+                
+                <item type="audiocd">
+                    <if expression="title">
+                        <text font="info subtitle" expression="title"/>
+                    </if>
+                    <if expression="artist">
+                        <goto_pos y="30" mode="relative"/>
+                        <text font="info title caps" expression="artist"/>
+                    </if>
+                </item>
+            </content>
+        </layout>
+
+        
+        <layout label="audio explorer info">
+            <content type="text" align="left" valign="top" spacing="20">
+
+                <item type="audio">
+
+                    <if expression="artist">
+                        <text align="left" font="info title caps" mode="soft" expression="artist"/>
+                    </if>
+
+                    <if expression="album">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                    	<text align="left" font="info label grey" mode="soft" expression="album"/>
+                    </if>
+
+                    <if expression="not album and not artist">
+                        <goto_pos x="0" y="0" mode="absolute"/>
+                        <text align="left" font="info title caps" expression="title"/>
+                        <if expression="description"> <!-- e.g. webradio -->
+	                    <newline/>
+                            <text align="left" font="info title caps" expression="description" mode="soft"/>
+                        </if>
+                    </if>
+
+                    <if expression="title">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text align="left" font="info subtitle" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info subtitle" expression="name"/>
+                        <newline/>
+                    </if>
+                   
+                    <goto_pos x="500" y="0" mode="absolute"/>
+
+                    <!-- <if expression="parent(audio_advanced_sort)"> -->
+                    <if expression="trackno">
+                        <text align="left" font="info value blue">Track </text>
+                        <goto_pos x="600" mode="absolute"/>
+                        <text font="info value white" expression="trackno"/>
+                        <if expression="trackof">
+                            <text align="left" font="info value white"> of </text>
+                            <text font="info value white" expression="trackof"/>
+                        </if>
+                    </if>
+
+                    <if expression="length">
+                        <goto_pos x="500" y="20" mode="absolute"/>
+                        <text align="left" font="info value blue">Lenght </text>
+                        <goto_pos x="600" y="20" mode="absolute"/>
+                        <text font="info value white" expression="length"/>
+                    </if>
+
+                    <if expression="date">
+                        <goto_pos x="500" y="40" mode="absolute"/>
+                        <text align="left" font="info value blue">Year </text>
+                        <goto_pos x="600" y="40" mode="absolute"/>
+                        <text font="info value white" expression="date"/>
+                    </if>
+                    <if expression="audio_codec and bitrate">
+                        <goto_pos x="500" y="60" mode="absolute"/>
+                        <text align="left" font="info value blue">Codec </text>
+                        <goto_pos x="600" y="60" mode="absolute"/>
+                        <img width="50" height="20" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                        <goto_pos x="56" mode="relative"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                    </if>
+                    <if expression="audio_codec and not bitrate">
+                        <goto_pos x="500" y="60" mode="absolute"/>
+                        <text align="left" font="info value blue">Codec </text>
+                        <goto_pos x="600" y="60" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                    </if>
+                    <if expression="not audio_codec and bitrate">
+                        <goto_pos x="500" y="60" mode="absolute"/>
+                        <text align="left" font="info value blue">Bitrate </text>
+                        <goto_pos x="600" y="60" mode="absolute"/>
+                        <text font="info plot white" expression="bitrate"/>
+                        <text align="left" font="info plot white"> kbps</text>
+                    </if>
+                </item>
+
+                <item type="playlist">
+                    <if expression="name">
+                        <text font="info subtitle" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="len(playlist)">
+	                <goto_pos x="0" y="100" mode="absolute"/>
+                        <text font="info value blue" expression="len(playlist)"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+
+                    <if expression="length">
+	                <goto_pos x="0" y="80" mode="absolute"/>
+                        <text align="left" font="info value blue">Lenght </text>
+                        <text font="info value white" expression="length"/>
+                    </if>
+                </item>
+
+                <!-- audio dir -->
+                <item type="default">
+                    <if expression="display_type == 'audio' and artist">
+                        <text align="left" font="info title caps" mode="soft" expression="artist"/>
+                    </if>
+
+                    <if expression="display_type == 'audio' and album">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                    	<text align="left" font="info label grey" mode="soft" expression="album"/>
+                    </if>
+
+                    <if expression="not type == 'playlist' and not album and not artist">
+                        <goto_pos x="0" y="0" mode="absolute"/>
+                        <text align="left" font="info title caps" expression="title"/>
+                    </if>
+                    
+                    <if expression="tagline">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                    </if>
+             
+                    <if expression="not tagline and content">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="content"/>
+                    </if>
+
+                    <if expression="display_type == 'audio' and length">
+	                <goto_pos x="0" y="80" mode="absolute"/>
+                        <text font="info value blue">Lenght </text>
+                        <text font="info value white" expression="length"/>
+                    </if>
+
+                    <if expression="display_type == 'audio' and num_total_items">
+	                <goto_pos x="0" y="100" mode="absolute"/>
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+                </item>
+                
+                
+                <item type="audiocd">
+                    <if expression="artist">
+                        <text font="info title caps" expression="artist"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="title">
+                        <text font="info label grey" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="len(tracks)">
+	                <goto_pos x="0" y="100" mode="absolute"/>
+                        <text font="info value blue" expression="len(tracks)"/>
+                        <text font="info value blue"> Tracks</text>
+                    </if>
+                </item>
+            </content>
+        </layout>
+
+        <!-- 
+        *******************************************************
+        ** AUDIO PLAYER DEFINITIONS
+        ******************************************************* -->
+        
+        <player>
+            <screen layout="player screen" x="0" y="0" width="1280" height="720"/>
+            <title visible="no"/>
+        </player>
+        
+        <layout label="player screen">
+            <background>
+                <image image="background_audio" x="0" y="0" label="background" />
+            </background>
+        </layout>
+        
+        <layout label="player blurr">
+            <content align="center" valign="center"/>
+        </layout>
+        
+        <layout label="player info blurr">
+            <content>
+                <item type="default">
+                    <if expression="title">
+                        <text font="player title" expression="title"/>
+                        <newline/>
+                    </if>
+                    <if expression="not title">
+                        <text font="player title" expression="name"/>
+                        <newline/>
+                    </if>
+                    <if expression="description">
+                        <text font="player info" expression="description"/>
+                        <newline/>
+                    </if>
+                    <if expression="artist">
+                        <text font="player artist" expression="artist"/>
+                        <newline/>
+                    </if>
+                    <goto_pos y="5" mode="relative"/>
+                    <if expression="album">
+                        <text width="100" align="right" font="player info">Album:</text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="player info" expression="album" width="250"/>
+                        <newline/>
+                    </if>
+                    <if expression="date">
+                        <text width="100" align="right" font="player info">Year:</text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="player info" expression="date"/>
+                        <newline/>
+                    </if>
+                    <if expression="trackno">
+                        <text width="100" align="right" font="player info">Track:</text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="player info" expression="trackno"/>
+                    </if>
+                    <if expression="trackof">
+                            <text font="info value">/</text>
+                            <text font="info value" expression="trackof"/>
+                    </if>
+                    <newline/>
+                    <goto_pos y="15" mode="relative"/>
+                    <if expression="length">
+                        <text width="100" align="right" font="player info">Length:</text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="player info" expression="length"/>
+                        <newline/>
+                    </if>
+                    <if expression="elapsed">
+                        <text width="100" align="right" font="player info">Elapsed:</text>
+                        <goto_pos x="10" mode="relative"/>
+                        <text font="player info" expression="elapsed"/>
+                        <newline/>
+                    </if>
+                </item>
+            </content>
+        </layout>
+        
+
+        <!-- 
+        *******************************************************
+        ** Audio fonts, colors, images 
+        *******************************************************
+        -->
+        <image label="background_audio" filename="xbmc/back_music.png"/>
+
+        <font label="player" name="DejaVuSans.ttf" size="18" color="0xffffff">
+            <shadow visible="yes" color="0x000000" border="no"/>
+        </font>
+        <font label="player title" name="DejaVuSans.ttf" size="18" color="0xffffff"/>
+        <font label="player artist" name="DejaVuSans.ttf" size="16" color="0xffffff"/>
+        <font label="player info" name="DejaVuSans.ttf" size="14" color="0xffffff"/>
+
+
+    </skin>
+</freevo>
+
+<!--
+vim:autoindent:tabstop=4:softtabstop=4:shiftwidth=4:expandtab:filetype=xml:
+-->

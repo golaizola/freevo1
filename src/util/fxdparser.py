@@ -254,14 +254,22 @@ class FXD:
         self.tree.save()
 
 
-    def get_children(self, node, name, deep=1):
+    def get_root_node(self):
+        """
+        add an element to the tree
+        """
+        return self.tree.tree
+        
+
+    def get_children(self, node, name=None, deep=1):
         """
         deep = 0, every deep, 1 = children, 2 = childrens children, etc.
         """
         ret = []
         for child in node.children:
-            if deep < 2 and child.name == name:
-                ret.append(child)
+            if deep < 2:
+                if (name and child.name == name) or not name:
+                    ret.append(child)
             if deep == 0:
                 ret += self.get_children(child, name, 0)
             elif deep > 1:

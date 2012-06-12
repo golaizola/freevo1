@@ -486,6 +486,12 @@ class MPlayer:
                 return True
 
         if event == STOP:
+            if dialog.is_dialog_supported() and self.play_state_dialog and self.play_state_dialog.visible:
+                if config.MPLAYER_VERSION < 2 and self.paused:
+                    self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_STOP, self.item, self.get_stored_time_info)
+                else:
+                    self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_STOP, self.item, self.get_time_info)
+
             self.stop()
             return self.item.eventhandler(event)
 
@@ -504,15 +510,13 @@ class MPlayer:
 
         if event == TOGGLE_OSD:
             if dialog.is_dialog_supported():
-                if self.play_state_dialog is None:
-                    if self.paused and config.OSD_TOGGLE_STATE_INFO:
-                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_INFO, self.item, self.get_stored_time_info)
-                    elif self.paused and not config.OSD_TOGGLE_STATE_INFO:
-                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE, self.item, self.get_stored_time_info)
-                    elif not self.paused and config.OSD_TOGGLE_STATE_INFO:
-                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_INFO, self.item, self.get_time_info)
+                if self.play_state_dialog is None or not self.play_state_dialog.visible:
+                    if config.MPLAYER_VERSION < 2:
+                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_INFO if config.OSD_TOGGLE_STATE_INFO else dialog.PLAY_STATE_PAUSE, 
+                            self.item, self.get_stored_time_info if self.paused else self.get_time_info)
                     else:
-                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
+                        # so much simpler for mplayer2
+                        self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE if self.paused else dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
                 else:
                     self.play_state_dialog.hide()
                     self.play_state_dialog = None
@@ -524,17 +528,42 @@ class MPlayer:
         if event == PAUSE or event == PLAY:
             self.paused = not self.paused
             self.seeking = False
-            # We have to store the current time before displaying the dialog
-            # otherwise the act of requesting the current position resumes playback!
-            self.stored_time_info = self.get_time_info()
 
-            if self.paused:
-                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE, self.item, self.get_stored_time_info)
-                self.app.write('pause\n')
+            if config.MPLAYER_VERSION < 2:
+                # We have to store the current time before displaying the dialog
+                # otherwise the act of requesting the current position resumes playback!
+                self.stored_time_info = self.get_time_info()
+
+                if self.paused:
+                    self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE, self.item, self.get_stored_time_info)
+                    self.app.write('pause\n')
+                else:
+                    self.app.write('speed_set 1.0\n')
+                    self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
             else:
-                self.app.write('speed_set 1.0\n')
-                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE if self.paused else dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info)
+                self.app.write('pause\n')
+            
+            return True
 
+        if event == NEXT:
+            if self.item.info.has_key('chapters') and self.item.info['chapters'] > 1:
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_SEEK_FORWARD, self.item, self.get_time_info)
+                self.app.write('seek_chapter 1\n')
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE if self.paused else dialog.PLAY_STATE_PLAY, 
+                    self.item, self.get_time_info)
+            else:
+                self.eventhandler(Event(SEEK, arg=60), menuw)
+            return True
+
+        if event == PREV:
+            if self.item.info.has_key('chapters') and self.item.info['chapters'] > 1:
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_SEEK_BACK, self.item, self.get_time_info)
+                self.app.write('seek_chapter -1\n')
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE if self.paused else dialog.PLAY_STATE_PLAY, self.item, self.get_time_info)
+            else:
+                self.eventhandler(Event(SEEK, arg=-60), menuw)
             return True
 
         if event == SEEK:
@@ -563,13 +592,17 @@ class MPlayer:
                     dialog.show_message(_('Seeking not possible'))
                     return False
             
-            self.paused = False
+            if config.MPLAYER_VERSION < 2:
+                self.paused = False            
             self.seeking = True
             self.app.write('seek %s\n' % event.arg)
             if event.arg > 0:
-                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_SEEK_FORWARD, self.item, self.get_time_info)
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_FFORWARD, self.item, self.get_time_info)
             else:
-                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_SEEK_BACK, self.item, self.get_time_info)
+                self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_REWIND, self.item, self.get_time_info)
+
+            self.play_state_dialog = dialog.show_play_state(dialog.PLAY_STATE_PAUSE if self.paused else dialog.PLAY_STATE_PLAY, 
+                self.item, self.get_time_info)
             return True
 
         if event == VIDEO_AVSYNC:

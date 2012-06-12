@@ -72,7 +72,7 @@ class AudioDiskItem(Playlist):
         """
         logger.log( 9, 'actions()')
         self.cwd()
-        items = [ ( self.cwd, _('Browse disc') ) ]
+        items = [ ( self.cwd, _('Browse Disc') ) ]
         return items
 
 
@@ -111,7 +111,7 @@ class AudioDiskItem(Playlist):
 
         # random playlist (only active for audio)
         if 'audio' in config.DIRECTORY_ADD_RANDOM_PLAYLIST and len(play_items) > 1:
-            pl = Playlist(_('Random playlist'), play_items, self, random=True)
+            pl = Playlist(_('Random Playlist'), play_items, self, random=True)
             pl.autoplay = True
             items += [ pl ]
 

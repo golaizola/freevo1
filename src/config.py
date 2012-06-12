@@ -37,6 +37,7 @@ import logging
 import plugin
 
 logger = logging.getLogger("freevo.config")
+logger.setLevel(logging.INFO)
 
 import sys, os, time, re, string, pwd
 from threading import RLock
@@ -497,6 +498,49 @@ IMAGE_DIR = os.path.join(SHARE_DIR, 'images')
 FONT_DIR  = os.path.join(SHARE_DIR, 'fonts')
 
 RUNAPP = os.environ['RUNAPP']
+
+#
+# Change UID/GID
+#
+
+if HELPER and not IS_PROMPT:
+    app = HELPER_APP.upper()
+    uid = app + '_UID'
+    gid = app + '_GID'
+    try:
+        if eval(uid) and os.getuid() == 0:
+            os.setgid(eval(gid))
+            os.setuid(eval(uid))
+    except Exception, why:
+        pass
+
+#
+# Setup logging
+#
+if not IS_PROMPT:
+    try:
+        appname = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+        if not appname:
+            appname = 'prompt'
+        logfile = os.path.join(FREEVO_LOGDIR, '%s-%s.log' % (appname, os.getuid()))
+        fp = open(logfile, 'a')
+        fp.close()
+    except IOError, e:
+        print '%s' % e
+        logfile = '/dev/null'
+
+    logging.basicConfig(level=LOGGING, format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s',
+        filename=logfile, filemode='a')
+
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    sys.stdout = Logger(logging.getLogger('stdout'), sys.stdout)
+    sys.stderr = Logger(logging.getLogger('stderr'), sys.stderr)
+    ts = time.asctime(time.localtime(time.time()))
+    sys.stdout.log('=' * 80)
+    sys.stdout.log('Freevo %s started at %s' % (version.version, ts))
+    sys.stdout.log('-' * 80)
+
 logger.debug('RUNAPP: %s', RUNAPP)
 
 logger.info('LOGDIR: %s %s', OS_LOGDIR, FREEVO_LOGDIR)
@@ -517,9 +561,9 @@ for dirname in cfgfilepath[1:]:
 #
 for dirname in cfgfilepath:
     freevoconf = os.path.join(dirname, 'freevo.conf')
-    logger.debug('Trying freevo configuration file "%s"...', freevoconf)
+    logger.debug('Trying freevo configuration file: "%s"...', freevoconf)
     if os.path.isfile(freevoconf):
-        logger.info('Loading freevo configuration file "%s"', freevoconf)
+        logger.info('Loading freevo configuration file: "%s"', freevoconf)
 
         commentpat = re.compile('([^#]*)( *#.*)')
         c = open(freevoconf)
@@ -543,6 +587,7 @@ for dirname in cfgfilepath:
         x, y = CONF.position.split(',')
         CONF.width, CONF.height = int(w), int(h)
         CONF.x, CONF.y = int(x), int(y)
+        logger.info('Loaded freevo configuration file: "%s"', freevoconf)
         break
 else:
     print
@@ -660,45 +705,44 @@ else:
     sys.exit(0)
 
 #
-# Change UID/GID
+# Search for {skin}_conf.py in SKIN_DIR
 #
-
-if HELPER and not IS_PROMPT:
-    app = HELPER_APP.upper()
-    uid = app + '_UID'
-    gid = app + '_GID'
+skinconffile = os.path.join(SKIN_DIR, '%s' % SKIN_MODULE, 'freevo_%s_config.py' % SKIN_XML_FILE)
+logger.debug('Trying skin configuration file "%s"...', skinconffile)
+if os.path.isfile(skinconffile):
+    logger.info('Loading skin configuration file: "%s"', skinconffile)
+    our_locals = {}
     try:
-        if eval(uid) and os.getuid() == 0:
-            os.setgid(eval(gid))
-            os.setuid(eval(uid))
+        execfile(skinconffile, globals(), our_locals)
     except Exception, why:
-        pass
-#
-# Setup logging
-#
-if not IS_PROMPT:
-    try:
-        appname = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-        if not appname:
-            appname = 'prompt'
-        logfile = os.path.join(FREEVO_LOGDIR, '%s-%s.log' % (appname, os.getuid()))
-        fp = open(logfile, 'a')
-        fp.close()
-    except IOError, e:
-        print '%s' % e
-        logfile = '/dev/null'
+        traceback.print_exc()
+        raise SystemExit
+    locals().update(our_locals)
+    logger.info('Loaded skin configuration file: "%s"', skinconffile)
+else:
+    logger.info('No skin specific config file exists. %s: no such file' % skinconffile)
 
-    logging.basicConfig(level=LOGGING, format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s',
-        filename=logfile, filemode='a')
 
-    old_stdout = sys.stdout
-    old_stderr = sys.stderr
-    sys.stdout = Logger(logging.getLogger('stdout'), sys.stdout)
-    sys.stderr = Logger(logging.getLogger('stderr'), sys.stderr)
-    ts = time.asctime(time.localtime(time.time()))
-    sys.stdout.log('=' * 80)
-    sys.stdout.log('Freevo %s started at %s' % (version.version, ts))
-    sys.stdout.log('-' * 80)
+#
+# Search for local_conf_{skin}.py:
+# Such file should be avoided as a plague as changing/modifying variables set in the 
+# {skin}_config.py file, will almost definitely break the skin. But it'd be unfair not
+# to provide a mechanism to override variables as set by the skin config so here you go.
+# Such skin local config file shall be placed in the same location as the main local_config.py
+#
+for dirname in cfgfilepath:
+    skinoverridefile = os.path.join(dirname, 'local_%s_conf.py' % SKIN_XML_FILE)
+    logger.debug('Trying local skin configuration file "%s"...', skinoverridefile)
+    if os.path.isfile(skinoverridefile):
+        logger.info('Loading local skin configuration file: "%s"', skinoverridefile)
+        our_locals = {}
+        try:
+            execfile(skinoverridefile, globals(), our_locals)
+        except Exception, why:
+            traceback.print_exc()
+            raise SystemExit
+        locals().update(our_locals)
+        logger.info('Loaded local skin configuration file: "%s"', skinoverridefile)
 
 
 def shutdown():
@@ -712,7 +756,6 @@ def shutdown():
 
 # set the umask
 os.umask(UMASK)
-
 
 #if not HELPER:
 logging.getLogger('').setLevel(LOGGING)
@@ -938,8 +981,7 @@ if TV_CHANNELS == None and plugin.is_active('tv'):
 # compile the regexp
 #
 VIDEO_SHOW_REGEXP_MATCH = re.compile("^.*" + VIDEO_SHOW_REGEXP).match
-VIDEO_SHOW_REGEXP_SPLIT = re.compile("[\.\- ]*" + VIDEO_SHOW_REGEXP + "[\.\- ]*").split
-
+VIDEO_SHOW_REGEXP_SPLIT = re.compile("[\.\-\[ ]*" + VIDEO_SHOW_REGEXP + "[\.\-\[ ]*").split
 
 #
 # create cache subdirs
@@ -1001,3 +1043,5 @@ for k, v in CONF.__dict__.items():
 # make sure USER and HOME are set
 os.environ['USER'] = pwd.getpwuid(os.getuid())[0]
 os.environ['HOME'] = pwd.getpwuid(os.getuid())[5]
+
+

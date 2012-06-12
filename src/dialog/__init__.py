@@ -37,6 +37,7 @@ There are 2 types of display:
 
 @var PLAY_STATE_PLAY: Play state constant for playing.
 @var PLAY_STATE_PAUSE: Play state constant for paused.
+@var PLAY_STATE_STOP: Play state constant for stopped.
 @var PLAY_STATE_REWIND: Play state constant for rewinding.
 @var PLAY_STATE_FFORWARD: Play state constant for fast forwarding.
 @var PLAY_STATE_SEEK_BACK: Play state constant for seeking backward.
@@ -60,13 +61,14 @@ overlay_display_supports_dialogs = False
 # Play state constants
 PLAY_STATE_PLAY         = 'play'
 PLAY_STATE_PAUSE        = 'pause'
+PLAY_STATE_STOP         = 'stop'
 PLAY_STATE_REWIND       = 'rewind'
 PLAY_STATE_FFORWARD     = 'fastforward'
 PLAY_STATE_SEEK_BACK    = 'seekback'
 PLAY_STATE_SEEK_FORWARD = 'seekforward'
 PLAY_STATE_PLAY_SLOW    = 'slow'
 PLAY_STATE_PLAY_FAST    = 'fast'
-PLAY_STATE_INFO       = 'info'
+PLAY_STATE_INFO         = 'info'
 
 def init():
     # Load the skin file

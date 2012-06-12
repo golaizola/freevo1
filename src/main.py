@@ -550,10 +550,10 @@ try:
 
     MainTread()
 
-    print 'Freevo %s ready' % (version.version,)
+    logger.info('Freevo %s ready', version.version)
     rc.post_event(FREEVO_READY)
     kaa.main.run()
-    print 'Freevo %s finished' % (version.version,)
+    logger.info('Freevo %s finished', version.version)
 
 #except KeyboardInterrupt:
 #    print 'Shutdown by keyboard interrupt'

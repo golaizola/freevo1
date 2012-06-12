@@ -43,7 +43,7 @@ import plugin
 from videoitem import VideoItem, FileInformation
 
 # variables for the hashing function
-fxd_database         = {}
+fxd_database        = {}
 discset_information = {}
 tv_show_information = {}
 
@@ -62,7 +62,7 @@ class PluginInterface(plugin.MimetypePlugin):
         # load the fxd part of video
         import fxdhandler
 
-        plugin.register_callback('fxditem', ['video'], 'movie', fxdhandler.parse_movie)
+        plugin.register_callback('fxditem', ['video'], 'movie',    fxdhandler.parse_movie)
         plugin.register_callback('fxditem', ['video'], 'disc-set', fxdhandler.parse_disc_set)
 
         # activate the mediamenu for video

@@ -52,7 +52,8 @@ class PluginInterface(plugin.MainMenuPlugin):
         logger.log( 9, 'detach.PluginInterface.__init__()')
         plugin.MainMenuPlugin.__init__(self)
         config.EVENTS['audio'][config.DETACH_KEY] = Event(FUNCTION_CALL, arg=self.detach)
-        self.show_item = menu.MenuItem(_('Show player'), action=self.show)
+        self.menuw = None
+        self.show_item = menu.MenuItem(_('Show Player'), action=self.show)
         self.show_item.type = 'detached_player'
         self.event = EventHandler(self._event_handler)
         self.event.register()
@@ -79,7 +80,8 @@ class PluginInterface(plugin.MainMenuPlugin):
 
 
     def _event_handler(self, event):
-        logger.log( 9, '_event_handler(event=%s)', event)
+        logger.log(9, '_event_handler(event=%s), event.arg=%r, event.context=%r, PluginInterface.detached=%r', 
+            event, event.arg, event.context, PluginInterface.detached)
         gui = audio.player.get()
         if gui:
             p = gui.player
@@ -101,7 +103,7 @@ class PluginInterface(plugin.MainMenuPlugin):
                 p.eventhandler(event)
                 self._detach()
             elif plugin.isevent(event) == 'ATTACH':
-                PluginInterface.detached = False
+                self._attach()
                 p.eventhandler(event)
             elif event == VIDEO_START:
                 PluginInterface.detached = False
@@ -117,6 +119,8 @@ class PluginInterface(plugin.MainMenuPlugin):
         PluginInterface.detached = True
 
         gui = audio.player.get()
+        # preserve the menu
+        self.menuw = gui.menuw
         # hide the menuw's
         gui.hide()
         gui.menuw.show()
@@ -135,12 +139,18 @@ class PluginInterface(plugin.MainMenuPlugin):
 
         gui = audio.player.get()
         # restore the menuw's
-        gui.menuw = menuw
-        gui.item.menuw = menuw
+        if not menuw:
+            gui.menuw = self.menuw
+            gui.item.menuw = self.menuw
+        else:
+            gui.menuw = menuw
+            gui.item.menuw = menuw
+
         if gui.item.parent:
             gui.item.parent.menuw = menuw
         # hide the menu and show the player
-        menuw.hide()
+        if menuw:
+            menuw.hide()
         gui.show()
 
 

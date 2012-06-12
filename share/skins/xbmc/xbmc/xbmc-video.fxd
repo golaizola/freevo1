@@ -1,0 +1,683 @@
+<?xml version="1.0" ?>
+<!DOCTYPE freevo-skin SYSTEM "../freevo-skin.dtd">
+<freevo>
+
+    <skin geometry="1280x720">
+        
+        <!-- 
+        *******************************************************
+        ** VIDEO MENU
+        ******************************************************* -->
+
+        <menu type="video main menu">
+            <style text="video explorer with info"/>
+        </menu>
+
+        <menu type="video default">
+            <style text="video listing with info no view"/>
+        </menu>
+
+        <menu type="video">
+            <style text="video explorer with info" image="video ribbon with info"/>
+            <style text="video explorer with info"/>
+            <style text="video ribbon with info"/>
+            <style text="video listing with info" />
+        </menu>
+        
+        <!-- The "video ribbon with info" -->
+        <menuset label="video ribbon with info" inherits="item ribbon">
+            <screen layout="video screen ribbon" visible="yes"/>
+            <info layout="video ribbon info" x="370" y="100" width="820" height="360"/>
+        </menuset>
+
+        <!-- The "video explorer without info" -->
+        <menuset label="video explorer" inherits="item explorer">
+            <screen layout="video screen explorer" visible="yes"/>
+        </menuset>
+
+        <!-- The "video explorer with info" -->
+        <menuset label="video explorer with info" inherits="video explorer">
+            <info layout="video explorer info" visible="yes" x="30" y="550" width="1220" height="120"/>
+        </menuset>
+
+        <!-- The "video listing without info" -->
+        <menuset label="video listing" inherits="item listing short">
+            <screen layout="video screen listing" visible="yes"/>
+        </menuset>
+
+        <!-- The "video listing without info nor view" -->
+        <menuset label="video listing with info no view" inherits="item listing long with info">
+            <screen layout="video screen" visible="yes"/>
+        </menuset>
+
+        <!-- The "video listing with info" -->
+        <menuset label="video listing with info" inherits="video listing">
+	    <subtitle layout="video listing subtitle" x="30" y="40" width="1220" height="50"/> 	
+            <info layout="video listing info" x="30" y="420" width="1220" height="250"/>
+        </menuset>
+
+        <!-- 
+        *******************************************************
+        ** Video layouts 
+        *******************************************************
+        -->
+
+	<!-- subtitle for image listing area -->
+	<layout label="video listing subtitle">
+            <content type="strict video" font="info title" align="left" valign="center"/>
+	</layout> 
+    
+    	<layout label="video screen">
+            <background>
+                <image image="background_video" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+            </background>
+        </layout>
+
+        <layout label="video screen explorer">
+            <background>
+                <image image="background_video" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+                <image image="separator_vert" x="820" y="40" width="6" height="max-80" scale="both" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="video screen listing">
+            <background>
+                <image image="background_video" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+                <image image="separator_vert" x="448" y="40" width="6" height="max-320" scale="both" valign="center"/>
+            </background>
+        </layout>
+
+        <layout label="video screen ribbon">
+            <background>
+                <image image="background_video" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+                <image image="panel" label="panel_movie" x="60" y="80" height="400" width="1160" scale="both"/>
+            </background>
+        </layout>
+
+        <!-- listing area for video with images -->
+        <layout label="video explorer">
+            <content x="0" type="image" spacing="0">
+                <item type="default" width="90" height="125" align="center" valign="center"/>
+                <item type="selected" width="115" height="160" align="center" valign="center"/>
+            </content>
+        </layout>
+ 
+        <layout label="video short description">
+            <content x="0" y="10" type="text" height="max-20" width="max-20" spacing="5" font="default">
+                <item>
+                    <if expression="title">
+                        <text font="player title" expression="title"/>
+                        <newline/>
+                    </if>
+                </item>
+            </content>
+        </layout>
+
+        <!-- listing area for video with images -->
+        <layout label="video ribbon" inherits="layout item ribbon">
+            <content type="image" spacing="-35" align="center">
+                <item type="default" y="max-60" width="90" height="125" align="center" valign="center">
+                    <!-- <rectangle bgcolor="0x950e1427" size="0" x="-5" y="-5" radius="10" width="max+10" height="max+10"/> -->
+                </item>
+    
+                <item type="selected"  width="115" height="160" align="center" valign="center">
+                    <rectangle bgcolor="0x950e1427" size="0" x="-5" y="-5" radius="10" width="max+10" height="max+10"/>
+                </item>
+            </content>
+        </layout>
+
+        <layout label="video ribbon info">
+            <content x="0" y="0" type="text" spacing="20" font="default">
+                <item type="video">
+
+                    <if expression="title">
+                        <text font="info title" width="max" expression="title"/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info title" width="max" expression="name"/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline white">"</text>
+                        <text font="info tagline white" expression="tagline"/>
+                        <text font="info tagline white">"</text>
+                    </if>
+
+                    <if expression="plot">
+                        <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info plot white" height="190" mode="soft" dim="yes" align="justified" expression="plot"/>
+                    </if>
+
+                    <if expression="genre">
+	                <goto_pos x="0" y="270" mode="absolute"/>
+                        <text font="info tagline grey" expression="genre" dim="yes"/>
+                    </if>
+
+                    <if expression="runtime">
+	                <goto_pos x="0" y="340" mode="absolute"/>
+                        <text font="info value blue">Runtime</text>
+	                <goto_pos x="150" y="340" mode="absolute"/>
+                        <text font="info value white" expression="runtime" dim="yes"/>
+                    </if>
+
+                    <if expression="rating">
+	                <goto_pos x="0" y="320" mode="absolute"/>
+                        <text font="info value blue">IMDB Rating</text>
+	                <goto_pos x="150" y="320" mode="absolute"/>
+                        <text font="info value white" expression="rating"/>
+                    </if>
+
+                    <if expression="year and tv_show_name">
+	                <goto_pos x="0" y="300" mode="absolute"/>
+                        <text font="info value blue">First Aired</text>
+	                <goto_pos x="150" y="300" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+                    <if expression="year and not tv_show_name">
+	                <goto_pos x="0" y="300" mode="absolute"/>
+                        <text font="info value blue">Released in</text>
+	                <goto_pos x="150" y="300" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+
+                    <if expression="mpaa_rating">
+	                <goto_pos x="415" y="320" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/ratings/%s.png' % mpaa_rating" />
+                    </if>
+                    <if expression="video_mode">
+	                <goto_pos x="496" y="320" mode="absolute"/>
+                        <img width="48" height="36" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_mode"/>
+                    </if>
+                    <if expression="aspect">
+                        <goto_pos x="550" y="320" mode="absolute"/>
+                        <img width="48" height="36" scale="none" srcexpr="'osd/xbmc/flagging/aspectratio/%s.png' % aspect"/>
+                    </if>
+                    <if expression="video_codec">
+                        <goto_pos x="604" y="320" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_codec"/>
+                    </if>
+                    <if expression="audio_channels">
+                        <goto_pos x="685" y="320" mode="absolute"/>
+                        <img width="48" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_channels"/>
+                    </if>
+                    <if expression="audio_codec">
+                        <goto_pos x="739" y="320" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                    </if>
+                    <!-- <img width="1000" height="500" scale="both" srcexpr=""/> -->
+
+                </item>
+                
+                <item type="dir">
+	            <if expression="title">
+                        <text font="info title" width="max" expression="title"/>
+                    </if>
+
+	            <if expression="not title">
+                        <text font="info title" width="max" expression="name"/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="plot">
+                        <goto_pos y="10" mode="relative"/>
+                        <text font="info plot white" height="250" mode="soft" dim="yes" align="justified" expression="plot"/>
+                    </if>
+                    
+                    <if expression="content and not plot">
+                        <goto_pos y="10" mode="relative"/>
+                        <text font="info plot white" height="250" mode="soft" dim="yes" align="justified" expression="content"/>
+                    </if>
+                    
+                    <goto_pos x="0" y="340" mode="absolute"/>
+
+                    <if expression="display_type == 'tv' and num_total_items">
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Episodes</text>
+                    </if>
+                    <if expression="display_type == 'video' and num_total_items">
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Videos</text>
+                    </if>
+                </item>
+
+                <item type="playlist">
+
+                    <if expression="name">
+                        <text font="info subtitle" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <goto_pos x="0" y="320" mode="absolute"/>
+
+                    <if expression="len(playlist)">
+                        <text font="info value blue" expression="len(playlist)"/>
+                        <text font="info value blue"> Items</text>
+                        <newline/>
+                    </if>
+
+                    <if expression="length">
+                        <text align="left" font="info value blue">Lenght </text>
+                        <text font="info value white" expression="length"/>
+                        <newline/>
+                    </if>
+
+                </item>
+
+                <item type="track">
+                    <if expression="trackno">
+                        <text font="info tagline white">Track </text>
+                        <text font="info tagline white" expression="trackno"/>
+                        <newline/>
+                        <goto_pos y="10" mode="relative"/>
+                    </if>
+                    <if expression="length:min">
+                        <text font="info value" expression="length:min"/>
+                        <newline/>
+                    </if>
+                    <if expression="len(audio)">
+                        <text font="info value" expression="len(audio)"/>
+                        <text font="info value"> Audio tracks</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(subtitles)">
+                        <text font="info value" expression="len(subtitles)"/>
+                        <text font="info value"> Subtitles</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(chapters)">
+                        <text font="info value" expression="len(chapters)"/>
+                        <text font="info value"> Chapters</text>
+                        <newline/>
+                    </if>
+                </item>
+                
+            </content>
+        </layout>
+        
+        <layout label="video listing info">
+            <content x="0" y="0" type="text" spacing="20" font="default">
+                <item type="video">
+                    <if expression="tagline">
+                        <text font="info tagline white">"</text>
+                        <text font="info tagline white" expression="tagline"/>
+                        <text font="info tagline white">"</text>
+			<newline/>
+                    </if>
+
+                    <if expression="plot">
+                        <goto_pos y="10" mode="relative"/>
+                        <text font="info plot white" height="120" mode="soft" dim="yes" align="justified" expression="plot"/>
+                    </if>
+
+                    <if expression="genre">
+	                <goto_pos x="0" y="160" mode="absolute"/>
+                        <text font="info tagline grey" expression="genre" dim="yes"/>
+                    </if>
+
+                    <if expression="runtime">
+	                <goto_pos x="0" y="230" mode="absolute"/>
+                        <text font="info value blue">Runtime</text>
+	                <goto_pos x="150" y="230" mode="absolute"/>
+                        <text font="info value white" expression="runtime" dim="yes"/>
+                    </if>
+
+                    <if expression="rating">
+	                <goto_pos x="0" y="210" mode="absolute"/>
+                        <text font="info value blue">IMDB Rating</text>
+	                <goto_pos x="150" y="210" mode="absolute"/>
+                        <text font="info value white" expression="rating"/>
+                    </if>
+
+                    <if expression="year and tv_show_name">
+	                <goto_pos x="0" y="190" mode="absolute"/>
+                        <text font="info value blue">First Aired</text>
+	                <goto_pos x="150" y="190" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+                    <if expression="year and not tv_show_name">
+	                <goto_pos x="0" y="190" mode="absolute"/>
+                        <text font="info value blue">Released in</text>
+	                <goto_pos x="150" y="190" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+
+                    <if expression="mpaa_rating">
+	                <goto_pos x="821" y="210" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/ratings/%s.png' % mpaa_rating" />
+                    </if>
+                    <if expression="video_mode">
+	                <goto_pos x="902" y="210" mode="absolute"/>
+                        <img width="48" height="36" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_mode"/>
+                    </if>
+                    <if expression="aspect">
+                        <goto_pos x="956" y="210" mode="absolute"/>
+                        <img width="48" height="36" scale="none" srcexpr="'osd/xbmc/flagging/aspectratio/%s.png' % aspect"/>
+                    </if>
+                    <if expression="video_codec">
+                        <goto_pos x="1010" y="210" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_codec"/>
+                    </if>
+                    <if expression="audio_channels">
+                        <goto_pos x="1091" y="210" mode="absolute"/>
+                        <img width="48" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_channels"/>
+                    </if>
+                    <if expression="audio_codec">
+                        <goto_pos x="1145" y="210" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                    </if>
+
+                </item>
+                
+                <item type="dir">
+                    <if expression="tagline">
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="plot">
+                        <goto_pos y="10" mode="relative"/>
+                        <text font="info plot white" height="120" mode="soft" dim="yes" align="justified" expression="plot"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="content and not plot">
+                        <goto_pos y="10" mode="relative"/>
+                        <text font="info plot white" height="120" mode="soft" dim="yes" align="justified" expression="content"/>
+                        <newline/>
+                    </if>
+                </item>
+
+                <item type="playlist"/>
+
+                <item type="track">
+                    <if expression="trackno">
+                        <text font="info tagline white">Track </text>
+                        <text font="info tagline white" expression="trackno"/>
+                        <newline/>
+                        <goto_pos y="10" mode="relative"/>
+                    </if>
+                    <if expression="length:min">
+                        <text font="info value" expression="length:min"/>
+                        <newline/>
+                    </if>
+                    <if expression="len(audio)">
+                        <text font="info value" expression="len(audio)"/>
+                        <text font="info value"> Audio tracks</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(subtitles)">
+                        <text font="info value" expression="len(subtitles)"/>
+                        <text font="info value"> Subtitles</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(chapters)">
+                        <text font="info value" expression="len(chapters)"/>
+                        <text font="info value"> Chapters</text>
+                        <newline/>
+                    </if>
+                </item>
+                
+            </content>
+        </layout>
+
+        <layout label="video explorer info">
+            <content x="0" y="0" type="text" spacing="20" font="default">
+                <item type="video">
+
+                    <if expression="title">
+                        <text font="info title" width="max" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info title" width="max" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="genre">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline grey" expression="genre" dim="yes"/>
+                    </if>
+
+                    <if expression="runtime">
+	                <goto_pos x="0" y="100" mode="absolute"/>
+                        <text font="info value blue">Runtime</text>
+	                <goto_pos x="150" y="100" mode="absolute"/>
+                        <text font="info value white" expression="runtime" dim="yes"/>
+                    </if>
+
+                    <if expression="rating">
+	                <goto_pos x="0" y="80" mode="absolute"/>
+                        <text font="info value blue">IMDB Rating</text>
+	                <goto_pos x="150" y="80" mode="absolute"/>
+                        <text font="info value white" expression="rating"/>
+                    </if>
+
+                    <if expression="year and tv_show_name">
+	                <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info value blue">First Aired</text>
+	                <goto_pos x="150" y="60" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+                    <if expression="year and not tv_show_name">
+	                <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info value blue">Released in</text>
+	                <goto_pos x="150" y="60" mode="absolute"/>
+                        <text font="info value white" expression="year"/>
+                    </if>
+
+                    <if expression="mpaa_rating">
+	                <goto_pos x="821" y="80" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/ratings/%s.png' % mpaa_rating" />
+                    </if>
+                    <if expression="video_mode">
+	                <goto_pos x="902" y="80" mode="absolute"/>
+                        <img width="48" height="36" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_mode"/>
+                    </if>
+                    <if expression="aspect">
+                        <goto_pos x="956" y="80" mode="absolute"/>
+                        <img width="48" height="36" scale="none" srcexpr="'osd/xbmc/flagging/aspectratio/%s.png' % aspect"/>
+                    </if>
+                    <if expression="video_codec">
+                        <goto_pos x="1010" y="80" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/video/%s.png' % video_codec"/>
+                    </if>
+                    <if expression="audio_channels">
+                        <goto_pos x="1091" y="80" mode="absolute"/>
+                        <img width="48" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_channels"/>
+                    </if>
+                    <if expression="audio_codec">
+                        <goto_pos x="1145" y="80" mode="absolute"/>
+                        <img width="75" height="36" scale="both" srcexpr="'osd/xbmc/flagging/audio/%s.png' % audio_codec"/>
+                    </if>
+
+                </item>
+                
+                <item type="dir">
+
+                    <if expression="title">
+                        <text font="info title" width="max" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info title" width="max" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="tagline"/>
+                        <newline/>
+                    </if>
+             
+                    <if expression="not tagline and content">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline white" width="max" expression="content"/>
+                        <newline/>
+                    </if>
+
+                    <goto_pos x="0" y="100" mode="absolute"/>
+
+                    <if expression="display_type == 'tv' and num_total_items">
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Episodes</text>
+                    </if>
+                    <if expression="display_type == 'video' and num_total_items">
+                        <text font="info value blue" expression="num_total_items"/>
+                        <text font="info value blue"> Videos</text>
+                    </if>
+                </item>
+
+                <item type="playlist">
+
+                    <if expression="title">
+                        <text font="info subtitle" width="max" expression="title"/>
+                        <newline/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info subtitle" width="max" expression="name"/>
+                        <newline/>
+                    </if>
+
+                    <goto_pos y="60" mode="absolute"/>
+
+                    <if expression="len(playlist)">
+                        <text font="info value blue" expression="len(playlist)"/>
+                        <text font="info value blue"> Items</text>
+                        <newline/>
+                    </if>
+
+                    <if expression="length">
+                        <text align="left" font="info value blue">Lenght </text>
+                        <text font="info value white" expression="length"/>
+                        <newline/>
+                    </if>
+
+                </item>
+
+                <item type="track">
+                    <if expression="trackno">
+                        <text font="info tagline white">Track </text>
+                        <text font="info tagline white" expression="trackno"/>
+                        <newline/>
+                        <goto_pos y="10" mode="relative"/>
+                    </if>
+                    <if expression="length:min">
+                        <text font="info value" expression="length:min"/>
+                        <newline/>
+                    </if>
+                    <if expression="len(audio)">
+                        <text font="info value" expression="len(audio)"/>
+                        <text font="info value"> Audio tracks</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(subtitles)">
+                        <text font="info value" expression="len(subtitles)"/>
+                        <text font="info value"> Subtitles</text>
+                        <newline/>
+                    </if>
+                    <if expression="len(chapters)">
+                        <text font="info value" expression="len(chapters)"/>
+                        <text font="info value"> Chapters</text>
+                        <newline/>
+                    </if>
+                </item>
+                
+            </content>
+        </layout>
+
+        <menuset label="video" inherits="normal text style">
+            <screen layout="video screen"/>
+            <title visible="no"/>
+        </menuset>
+
+        <menuset label="full video screen">
+            <screen layout="video running screen"/>
+        </menuset>
+
+        <menuset label="small video screen">
+            <screen layout="video running screen"/>
+        </menuset>
+
+        <layout label="video running screen">
+            <background>
+                <image image="background" x="0" y="0" label="background" alpha="200"/>
+                <image filename="xbmc/videos.png" x="435" y="0" width="370" height="380" alpha="200"/>
+            </background>
+        </layout>
+
+        <!-- Hack to display the video detailed description the way we want to -->
+        <tvguideinfo>
+            <title visible="no"/>
+            <screen layout="video screen description" visible="yes"/>
+            <info layout="tvguideinfo program details" x="90" y="90" width="1050" height="120"/>
+            <scrollabletext visible="yes" layout="video info" x="90" y="210" width="1050" height="430">
+                <image x="1150" y="155" width="32" height="32" label="uparrow" filename="up.png"/>
+                <image x="0" y="0" width="1" height="100" label="scrollbar" filename="scrollbar.png"/>
+                <image x="1150" y="max-40" width="32" height="32" label="downarrow" filename="down.png"/>
+            </scrollabletext>
+        </tvguideinfo>
+
+        <info layout="video info" x="10" y="160" width="480" height="430-buttonbar_height"/>
+
+        <layout label="video screen description">
+            <background>
+                <image image="background_video" label="background" x="0" y="0"/>
+                <image image="media_blade" x="0" y="0" width="max" height="max" scale="noscale"/>
+                <image image="panel" label="panel_movie" x="60" y="60" height="600" width="1160" scale="both"/>
+            </background>
+        </layout>
+
+        <layout label="tvguideinfo program details">
+            <content type="text" spacing="20" font="info title">
+                <item type="default">
+                    <if expression="title">
+                        <text font="info title" width="max" expression="title"/>
+                    </if>
+
+                    <if expression="not title">
+                        <text font="info title" width="max" expression="name"/>
+                    </if>
+
+                    <if expression="tagline">
+                        <goto_pos x="0" y="30" mode="absolute"/>
+                        <text font="info tagline white">"</text>
+                        <text font="info tagline white" expression="tagline"/>
+                        <text font="info tagline white">"</text>
+                    </if>
+
+                    <if expression="genre">
+	                <goto_pos x="0" y="60" mode="absolute"/>
+                        <text font="info tagline grey" expression="genre" dim="yes"/>
+                    </if>
+                </item>
+            </content>
+        </layout>
+
+
+        <!-- 
+        *******************************************************
+        ** Video fonts, colors, images 
+        *******************************************************
+        -->
+        <image label="background_video" filename="xbmc/back_video.png"/>
+
+    </skin>
+</freevo>
+
+<!--
+vim:autoindent:tabstop=4:softtabstop=4:shiftwidth=4:expandtab:filetype=xml:
+-->

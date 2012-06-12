@@ -84,6 +84,9 @@ class Playlist(Item):
         if build:
             self.build()
 
+        if self.name.find('Playlist') < 0:
+            self.name = '%s Playlist' % self.name
+
         self.random = random
 
 
@@ -554,9 +557,12 @@ class Mimetype(plugin.MimetypePlugin):
         else:
             display_type = None
 
+        if display_type and display_type in config.DIRECTORY_AUTOPLAY_PLAYLISTS:
+            autoplay = True
+            
         for filename in util.find_matches(files, self.suffix()):
             items.append(Playlist(playlist=filename, parent=parent,
-                                  display_type=display_type, build=True))
+                                  display_type=display_type, build=True, autoplay=autoplay))
             files.remove(filename)
 
         return items

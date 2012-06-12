@@ -2,8 +2,6 @@
 # -----------------------------------------------------------------------
 # Plug-in for subtitles download and support/maintenance
 # -----------------------------------------------------------------------
-# $Id: $
-#
 # Notes: subtitles plugin. 
 #        You can donwload subtitles from the http://napiprojekt.pl
 #        with this plugin. Only two langgauges supported, polish and english.
@@ -62,6 +60,7 @@ import os
 import glob
 from operator import itemgetter, attrgetter
 
+import kaa
 import menu
 import config
 import plugin
@@ -335,7 +334,7 @@ class PluginInterface(plugin.ItemPlugin):
         try:
             #get the subtitles from each active handler
             for handler in self.get_handlers().values():
-                dlg = dialog.utils.show_message(_('Searching %s...' % (handler['name'])), 'status', 0)
+                dlg = dialog.show_working_indicator(_('Searching %s...' % (handler['name'])))
 
                 if self.item.subitems:
                     for i in range(len(self.item.subitems)):
@@ -343,7 +342,7 @@ class PluginInterface(plugin.ItemPlugin):
                 else:
                     self.subs.update(handler.get_subs(self.item.filename, config.SUBS_LANGS.keys()))
 
-                dialog.utils.hide_message(dlg)
+                dlg.hide()
 
             for subs in sorted(self.subs.values(), key=attrgetter('handler.id', 'lang', 'vfile')):
                 try:
@@ -366,9 +365,8 @@ class PluginInterface(plugin.ItemPlugin):
                              self.subs_create_subs, ('all')))
 
         except (Exception), err:
-            dialog.utils.hide_message(dlg)
             logger.error('%s' % (err))
-            dialog.utils.show_message(_('Connection to subtitle service failed'))
+            dialog.show_message(_('Connection to subtitle service failed'))
             return
 
         if config.SUBS_AUTOACCEPT and len(items) > 0:
@@ -376,11 +374,14 @@ class PluginInterface(plugin.ItemPlugin):
             return
 
         if items:
-            moviemenu = menu.Menu(_('Subtitles Query'), items)
+            logger.debug('self.item.skin_fxd=%r', self.item.skin_fxd)
+            moviemenu = menu.Menu(_('Subtitles Query'), items, 
+                self.item.skin_fxd, item_types = '%s default' % self.item.type)
+            # we see if the item has individual skin and load it if so 
             menuw.pushmenu(moviemenu)
             return
 
-        dialog.utils.show_message(_('No subtitles available'))
+        dialog.show_message(_('No subtitles available'))
         return
 
 
@@ -419,11 +420,12 @@ class PluginInterface(plugin.ItemPlugin):
             return
 
         if items:
-            moviemenu = menu.Menu(_('Subtitles Query'), items)
+            moviemenu = menu.Menu(_('Subtitles Query'), items, 
+                self.item.skin_fxd, item_types = '%s default' % self.item.type)
             menuw.pushmenu(moviemenu)
             return
 
-        dialog.utils.show_message(_('No subtitles to be deleted'))
+        dialog.show_message(_('No subtitles to be deleted'))
         return
 
 
@@ -458,7 +460,7 @@ class PluginInterface(plugin.ItemPlugin):
         """
         create subs for the item
         """
-        dlg = dialog.utils.show_message(_('Saving subtitles...'), 'status', 0)
+        dlg = dialog.show_working_indicator(_('Saving subtitles...'))
  
         try:
             if arg == None or arg == 'all':
@@ -474,20 +476,19 @@ class PluginInterface(plugin.ItemPlugin):
                         
         except (Exception), err:
             logger.error('%s' % (err))
-            dialog.utils.hide_message(dlg)
-            dlg = dialog.utils.show_message(_('Error while saving subtitles'))
+            dialog.show_message(_('Error while saving subtitles'))
             
         # reset subs
         self.subs = {}
         self.subs_menu_back(menuw)
-        dialog.utils.hide_message(dlg)
+        dlg.hide()
  
 
     def subs_delete_subs(self, arg=None, menuw=None):
         """
         delete subtitle file(s) for the item
         """
-        dlg = dialog.utils.show_message(_('Deleting subtitles...'), 'status', 0)
+        dlg = dialog.show_working_indicator(_('Deleting subtitles...'))
 
         try:
             if arg == None or arg == 'all':
@@ -502,10 +503,9 @@ class PluginInterface(plugin.ItemPlugin):
 
         except (Exception), error:
             logger.error('%s' % (err))
-            dialog.utils.hide_message(dlg)
-            dlg = dialog.utils.show_message(_('Error while deleting subtitles'))
+            dialog.show_message(_('Error while deleting subtitles'))
             
         self.subfiles = []
         self.subs_menu_back(menuw)
-        dialog.utils.hide_message(dlg)
+        dlg.hide()
  

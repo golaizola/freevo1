@@ -156,8 +156,14 @@ MENU_SUBMENU           = Event('MENU_SUBMENU')
 MENU_CALL_ITEM_ACTION  = Event('MENU_CALL_ITEM_ACTION')
 MENU_CHANGE_STYLE      = Event('MENU_CHANGE_STYLE')
 
-
 DIRECTORY_CHANGE_DISPLAY_TYPE = Event('DIRECTORY_CHANGE_DISPLAY_TYPE')
+
+#
+# Dialog
+#
+DIALOG_SHOW = Event('DIALOG_SHOW')
+DIALOG_STOP = Event('DIALOG_STOP')
+DIALOG_HIDE = Event('DIALOG_HIDE')
 
 #
 # TV module
@@ -388,6 +394,8 @@ VIDEO_EVENTS = {
     'RIGHT'     : Event(SEEK, arg=60),
     'REW'       : Event(SEEK, arg=-10),
     'FFWD'      : Event(SEEK, arg=10),
+    'NEXT'      : NEXT,
+    'PREV'      : PREV,
     'MENU'      : MENU,
     'DISPLAY'   : TOGGLE_OSD,
     'REC'       : STORE_BOOKMARK,
@@ -417,6 +425,8 @@ DVD_EVENTS = {
     'LANG'      : VIDEO_NEXT_AUDIOLANG,
     'SUBTITLE'  : VIDEO_NEXT_SUBTITLE,
     'ANGLE'     : VIDEO_NEXT_ANGLE,
+    'NEXT'      : NEXT,
+    'PREV'      : PREV,
     'CH+'       : NEXT,
     'CH-'       : PREV
     }
@@ -430,6 +440,8 @@ VCD_EVENTS = {
     'RIGHT'     : Event(SEEK, arg=60),
     'REW'       : Event(SEEK, arg=-10),
     'FFWD'      : Event(SEEK, arg=10),
+    'NEXT'      : NEXT,
+    'PREV'      : PREV,
     'MENU'      : MENU,
     'DISPLAY'   : TOGGLE_OSD,
     'LANG'      : VIDEO_NEXT_AUDIOLANG,

@@ -89,7 +89,7 @@ def audio_selection_menu(arg=None, menuw=None):
         txt = '%(language)s %(title)s (channels=%(channels)s:%(codec)s)' % a
         menu_items.append(menu.MenuItem(txt, audio_selection, (item, a['id'])))
 
-    moviemenu = menu.Menu(_('Audio Menu'), menu_items, fxd_file=item.skin_fxd)
+    moviemenu = menu.Menu(_('Audio Menu'), menu_items, fxd_file=item.skin_fxd, item_types = 'video default')
     menuw.pushmenu(moviemenu)
 
 
@@ -129,7 +129,7 @@ def subtitle_selection_menu(arg=None, menuw=None):
         txt = '%(language)s%(title)s' % s
         menu_items.append(menu.MenuItem(txt, subtitle_selection, (item, s['id'])))
 
-    moviemenu = menu.Menu(_('Subtitle Menu'), menu_items, fxd_file=item.skin_fxd)
+    moviemenu = menu.Menu(_('Subtitle Menu'), menu_items, fxd_file=item.skin_fxd, item_types = 'video default')
     menuw.pushmenu(moviemenu)
 
 
@@ -170,7 +170,7 @@ def chapter_selection_menu(arg=None, menuw=None):
 
             menu_items.append(menu.MenuItem(txt, chapter_selection, (item, ' -ss %s' % c['pos'])))
 
-    moviemenu = menu.Menu(_('Chapter Menu'), menu_items, fxd_file=item.skin_fxd)
+    moviemenu = menu.Menu(_('Chapter Menu'), menu_items, fxd_file=item.skin_fxd, item_types = 'video default')
     menuw.pushmenu(moviemenu)
 
 
@@ -194,7 +194,7 @@ def subitem_selection_menu(arg=None, menuw=None):
     for pos in range(len(item.subitems)):
         menu_items += [ menu.MenuItem(_('Play chapter %s') % (pos+1), subitem_selection, (arg, pos)) ]
 
-    moviemenu = menu.Menu(_('Chapter Menu'), menu_items, fxd_file=item.skin_fxd)
+    moviemenu = menu.Menu(_('Chapter Menu'), menu_items, fxd_file=item.skin_fxd, item_types = 'video default')
     menuw.pushmenu(moviemenu)
 
 
@@ -219,7 +219,7 @@ def player_selection_menu(arg=None, menuw=None):
     for player in item.possible_players:
         menu_items += [ menu.MenuItem(_('Play with "%s"') % (player[1].name), player_selection, (arg, player))]
 
-    moviemenu = menu.Menu(_('Player Menu'), menu_items, fxd_file=item.skin_fxd)
+    moviemenu = menu.Menu(_('Player Menu'), menu_items, fxd_file=item.skin_fxd, item_types = 'video default')
     menuw.pushmenu(moviemenu)
 
 
@@ -336,4 +336,4 @@ def get_menu(item, menuw):
     @returns: a list of menu items
     """
     items = get_items(item) + [ menu.MenuItem(_('Play'), play_movie, (item, '')) ]
-    return menu.Menu(_('Config Menu'), items, fxd_file=item.skin_fxd)
+    return menu.Menu(_('Config Menu'), items, fxd_file=item.skin_fxd, item_types = 'video default')
