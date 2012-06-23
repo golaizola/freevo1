@@ -386,21 +386,9 @@ class FxdImdb:
             self.setFxdFile()
 
         try:
-            #should we add to an existing file?
-            if self.append:
-                if self.isdiscset:
-                    self.update_discset()
-                else:
-                    self.update_movie()
-            else:
-                #fetch images
-                self.fetch_image()
-                #should we write a disc-set ?
-                self.fxd_write(self.fxdfile)
-                #if self.isdiscset:
-                #    self.write_discset()
-                #else:
-                #    self.write_movie()
+            self.fetch_image()
+            #should we write a disc-set ?
+            self.fxd_write(self.fxdfile)
 
             #check fxd
             # XXX: add this back in without using parseMovieFile
@@ -859,17 +847,14 @@ class FxdImdb:
         logger.log(9, 'fxd_set_info(fxd=%r, parent=%r)', fxd, parent)
         node = None
 
-        if self.append:
-            # we do not append/update info node 
-            return node
-
         try:        
-            self.fxd_del_node(parent, 'info')
+            # self.fxd_del_node(parent, 'info')
             node = fxd.get_or_create_child(parent, 'info')
 
             if self.info:
                 for k in self.info.keys():
-                    fxd.add(fxd.XMLnode(k, None, self.info[k]), node)
+                    n_info = fxd.get_or_create_child(node, k)
+                    fxd.setcdata(n_info, self.info[k])
 
         except (Exception) as error:
             logger.warning('Error creating <info> node, skipping this node. Error=\'%s\'', error)

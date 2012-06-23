@@ -144,8 +144,11 @@ class PluginInterface(plugin.ItemPlugin):
     
         try:
             #guess the title from the filename
-            results = self.fxd.guessImdb(self.searchstring, self.disc_set)
-            
+            lock = kaa.ThreadCallable(self.fxd.guessImdb, 
+                                      self.searchstring, 
+                                      self.disc_set)()
+            lock.wait()
+            results = lock.result            
             # loop through the results and create menu
             # should not use imdbpy objects here as imdbpy should be encapsulated by FxdImdb
             # but for now it's to much work to do this the right way. 
@@ -153,7 +156,8 @@ class PluginInterface(plugin.ItemPlugin):
             for movie in results:
                 try:
                     # OK, we have a regular movie here, no nested episodes
-                    items.append(menu.MenuItem('%s (%s) (%s)' % (movie['long imdb title'], movie['kind'], movie.movieID), 
+                    items.append(menu.MenuItem('%s (%s) (%s)' % \
+                                (movie['long imdb title'], movie['kind'], movie.movieID), 
                                  self.imdb_create_fxd, (movie.movieID, movie['kind'])))
                 except Unicode, e:
                     print e
@@ -215,7 +219,11 @@ class PluginInterface(plugin.ItemPlugin):
         dlg = dialog.show_working_indicator(_('Getting data...'))
 
         try:
-            self.fxd.retrieveImdbData(arg[0], self.fxd.ctitle[1], self.fxd.ctitle[2])
+            lock = kaa.ThreadCallable(self.fxd.retrieveImdbData, 
+                arg[0], 
+                self.fxd.ctitle[1], 
+                self.fxd.ctitle[2])()
+            lock.wait() 
 
         except FxdImdb_Error, error:
             logger.warning('%s', error)

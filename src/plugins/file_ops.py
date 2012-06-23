@@ -110,9 +110,10 @@ class PluginInterface(plugin.ItemPlugin):
 
     def safe_unlink(self, filename):
         try:
-            os.unlink(filename)
+            if vfs.isfile(filename):
+                os.unlink(filename)
         except Exception, why:
-            print 'can\'t delete %r: %s' % (filename, why)
+            logger.warning('Can\'t delete %r: %s', filename, why)
 
 
     def delete_file(self):
@@ -125,6 +126,7 @@ class PluginInterface(plugin.ItemPlugin):
 
 
     def delete_info(self):
+        # we only delete the image if it's unique to this item, i.e. no common cover images
         self.safe_unlink(self.item.files.image)
         self.safe_unlink(self.item.files.edl_file)
         #now let's handle the fxd file, we will preserve the file if there is a skin definition

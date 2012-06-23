@@ -152,6 +152,14 @@ class Skin:
                 settings.font[f].font = osd.getfont(settings.font[f].name, settings.font[f].size)
 
 
+    def flush_cache(self):
+        """
+        Flush the in mem cache
+        """
+        if hasattr(self, '__last_load_cache__'):
+            self.__last_load_cache__ = (None, None)
+
+
     def load_cache(self, filename):
         """
         load a skin cache file

@@ -106,9 +106,11 @@ class DirItem(Playlist):
     """
     class for handling directories
     """
+    display_types = [ 'default', 'video', 'tv', 'audio', 'image', 'games', 'all' ]
+
     def __init__(self, directory, parent, name='', display_type=None, add_args=None, create_metainfo=True):
         logger.log( 9, '%s.__init__(directory=%r, parent=%r, name=%r, display_type=%r, add_args=%r, create_metainfo=%r)', 
-self.__class__, directory, parent, name, display_type, add_args, create_metainfo)
+            self.__class__, directory, parent, name, display_type, add_args, create_metainfo)
 
         self.autovars = [ ('num_dir_items', 0), ('show_all_items', False) ]
         Playlist.__init__(self, parent=parent, display_type=display_type)
@@ -185,12 +187,14 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         # Check for a cover in current dir
         if self.info['image']:
             image = self.info['image']
+            if image:
+                self.image = image
+                self.files.image = image
         else:
             image = util.getimage(os.path.join(directory, 'cover'))
-        # if we have an image then use it
-        if image:
-            self.image = image
-            self.files.image = image
+            # if we have an image then use it
+            if image:
+                self.image = image
 
         # Check for a folder.fxd in current dir
         self.folder_fxd = os.path.join(directory, 'folder.fxd')
@@ -267,9 +271,24 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         """
         logger.log( 9, 'read_folder_fxd(fxd=%r, node=%r)', fxd, node)
         if node.name == 'skin':
+            logger.debug('skin node present in folder.fxd')
+            
+            nodes = fxd.get_children(node, 'image')
+            for img_node in nodes:
+                logger.debug('image node present in folder.fxd')
+                label = fxd.getattr(img_node, 'label', None)
+                logger.debug('label attr=%r', label)
+                if label == 'background_%s' % self['display_type']:
+                    image = fxd.getattr(img_node, 'filename', None)
+                    if image:
+                        logger.debug('found background image %s in folder.fxd', image)
+                        self.bg_image = image
+                        break
+            
             self.skin_fxd = self.folder_fxd
             if config.SKIN_LOAD_FXD_FOR_ITEMS:
-                self.skin_settings = skin.load(self.skin_fxd, False)
+                self.skin_settings = skin.load(self.skin_fxd, True)
+
             return
 
         # read attributes
@@ -283,7 +302,9 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             if image and vfs.isfile(os.path.join(self.dir, image)):
                 self.image = os.path.join(self.dir, image)
 
-        self.display_type = fxd.getattr(node, 'display-type', None)
+        display_type = fxd.getattr(node, 'display-type', None)
+        if display_type in DirItem.display_types:
+            self.display_type = display_type
 
         # parse <info> tag
         fxd.parse_info(fxd.get_children(node, 'info', 1), self, {'description': 'content', 'content': 'content' })
@@ -305,6 +326,58 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
                     self.modified_vars.append(v)
 
 
+    def write_folder_fxd(self, fxd, node):
+        """
+        callback to save the modified fxd file
+        """
+        logger.log( 9, 'write_folder_fxd(fxd=%r, node=%r)', fxd, node)
+
+        if node.name == 'skin':
+            if hasattr(self, 'bg_image') and self.bg_image:
+                fxd.setattr(node, 'include', config.SKIN_XML_FILE)
+                if self.bg_image:
+                    fxd.add(fxd.XMLnode('image', 
+                            (('label', 'background_%s' % self['display_type']), ('filename', self.bg_image))),
+                            node, 0)
+            else:
+                nodes = fxd.get_children(node, 'image')
+                for img_node in nodes:
+                    logger.debug('image node present in folder.fxd')
+                    label = fxd.getattr(img_node, 'label', None)
+                    logger.debug('label attr=%r', label)
+                    if label == 'background_%s' % self['display_type']:
+                        node.children.remove(img_node)
+                        break
+
+            self.skin_fxd = self.folder_fxd
+            if config.SKIN_LOAD_FXD_FOR_ITEMS:
+                self.skin_settings = skin.load(self.skin_fxd, True)
+                
+            return
+
+        elif node.name == 'folder':
+            # remove old setvar
+            for child in copy.copy(node.children):
+                if child.name == 'setvar':
+                    node.children.remove(child)
+
+            fxd.setattr(node, 'title', self['title'])
+
+            if self.display_type:
+                fxd.setattr(node, 'display-type', self.display_type)
+
+            # add current vars as setvar
+            for v in self.modified_vars:
+                if self.__is_type_list_var__(v):
+                    if getattr(self, v):
+                        val = 1
+                    else:
+                        val = 0
+                else:
+                    val = getattr(self, v)
+                fxd.add(fxd.XMLnode('setvar', (('name', v.lower()), ('val', val))), node, 0)
+
+
     def __is_type_list_var__(self, var):
         """
         return if this variable to be saved is a type_list
@@ -314,33 +387,6 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             if v == var:
                 return type_list
         return False
-
-
-    def write_folder_fxd(self, fxd, node):
-        """
-        callback to save the modified fxd file
-        """
-        logger.log( 9, 'write_folder_fxd(fxd=%r, node=%r)', fxd, node)
-        # remove old setvar
-        for child in copy.copy(node.children):
-            if child.name == 'setvar':
-                node.children.remove(child)
-
-        fxd.setattr(node, 'title', self['title'])
-        
-        if self.display_type:
-            fxd.setattr(node, 'display-type', self.display_type)
-
-        # add current vars as setvar
-        for v in self.modified_vars:
-            if self.__is_type_list_var__(v):
-                if getattr(self, v):
-                    val = 1
-                else:
-                    val = 0
-            else:
-                val = getattr(self, v)
-            fxd.add(fxd.XMLnode('setvar', (('name', v.lower()), ('val', val))), node, 0)
 
 
     def __getitem__(self, key):
@@ -495,7 +541,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         # strip it out first, when we see the only thing that can be
         # a number.
 
-        if name and hasattr(self, 'display_type') and self.display_type and config.DIRECTORY_DIR_MENU_TABLE:
+        if name and config.DIRECTORY_DIR_MENU_TABLE:
             display_type = self.display_type
             if not display_type:
                 display_type = 'all'
@@ -628,6 +674,13 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
 
         items.append((self.configure, _('Configure directory'), 'configure'))
 
+        img = util.getimage(os.path.join(self.dir, 'background'))
+        if hasattr(self, 'bg_image') and self.bg_image:
+            items.append((self.reset_bg_image, _('Reset Background Image')))
+
+        elif img and not hasattr(self, 'bg_image') or (hasattr(self, 'bg_image') and not self.bg_image):
+            items.append((self.set_bg_image, _('Set Background Image')))
+
         if hasattr(self, 'self.folder_fxd'):
             items += fxditem.mimetype.get(self, [self.folder_fxd])
 
@@ -635,6 +688,58 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
             self.media.umount()
 
         return items
+
+
+    def set_bg_image(self, arg=None, menuw=None):
+        """
+        """
+        logger.log(9, 'set_bg_image(arg=%r, menuw=%r)', arg, menuw)
+        self.bg_image = util.getimage(os.path.join(self.dir, 'background'))
+       
+        try:
+            # first we update the folder fxd file 
+            parser = util.fxdparser.FXD(self.folder_fxd)
+            parser.set_handler('skin', self.write_folder_fxd, 'w', True)
+            parser.save()
+
+            # now we reload the skin settings
+            self.build(menuw=self.menuw)
+            #self.menu.skin_settings = skin.load(self.skin_fxd, False)
+            # skin.prepare()
+            # skin.redraw()
+
+        except Exception, e:
+            logger.warning('fxd file %s corrupt, %s', self.folder_fxd, e)
+            dialog.show_message(_('Failed to set background image'))
+            return
+            
+        dialog.show_message(_('Background image set'))
+            
+
+    def reset_bg_image(self, arg=None, menuw=None):
+        """
+        """
+        logger.log(9, 'set_bg_image(arg=%r, menuw=%r)', arg, menuw)
+        self.bg_image = None
+       
+        try:
+            # first we update the folder fxd file 
+            parser = util.fxdparser.FXD(self.folder_fxd)
+            parser.set_handler('skin', self.write_folder_fxd, 'w', False)
+            parser.save()
+            
+            # now we reload the skin settings
+            self.build(menuw=self.menuw)
+            # self.menu.skin_settings = skin.load(self.skin_fxd, False)
+            # skin.prepare()
+            # skin.redraw()
+
+        except Exception, e:
+            logger.warning('fxd file %s corrupt, %s', self.folder_fxd, e)
+            dialog.show_message(_('Failed to reset background image'))
+            return
+            
+        dialog.show_message(_('Background image reset'))
 
 
     def cwd(self, arg=None, menuw=None):
@@ -1088,9 +1193,7 @@ self.__class__, directory, parent, name, display_type, add_args, create_metainfo
         change display type from specific to all
         """
         logger.debug('configure_set_display_type(arg=%r, menuw=%r)', arg, menuw)
-
-        display_types = [ 'default', 'video', 'tv', 'audio', 'image', 'games', 'all' ]
-        display_type  = display_types[(display_types.index(arg) + 1) % len(display_types)]
+        display_type = DirItems.display_types[(display_types.index(arg) + 1) % len(display_types)]
 
         if display_type == 'all':
             self['show_all_items'] = True

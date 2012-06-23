@@ -38,6 +38,7 @@ from videoitem import VideoItem
 from item import FileInformation
 import os
 import skin
+import util
 
 def parse_movie(fxd, node):
     """
@@ -90,16 +91,21 @@ def parse_movie(fxd, node):
     title      = name=fxd.getattr(node, 'title')
     item.name  = title
     dirname    = os.path.dirname(fxd.filename)
-    image      = ''
-    item.image = fxd.childcontent(node, 'cover-img')
+    image      = fxd.childcontent(node, 'cover-img')
 
-    if item.image:
+    if image:
         try:
-            item.image = vfs.abspath(os.path.join(dirname, str(item.image)))
+            image = vfs.abspath(os.path.join(dirname, str(image)))
         except UnicodeEncodeError:
             logger.debug('os.path.join(dirname=%r, item.image=%r)', dirname, item.image)
             raise
-        image = item.image
+        item.image = image 
+        item.files.image = image
+    else:
+        # no image for this item, see if we have a cover img
+        image = util.getimage(os.path.join(dirname, 'cover'))
+        if image:
+            item.image = image
 
     fxd.parse_info(node, item, {'runtime': 'length'})
 
@@ -263,10 +269,7 @@ def parse_movie(fxd, node):
     if not hasattr(item, 'files') or not item.files:
         item.files = FileInformation()
     item.files.files     = files
-
     item.files.fxd_file  = fxd.filename
-    if image:
-        item.files.image = image
 
     # remove them from the filelist (if given)
     duplicates = fxd.getattr(None, 'duplicate_check', [])

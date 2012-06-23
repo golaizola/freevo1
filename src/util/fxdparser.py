@@ -385,3 +385,16 @@ class FXD:
         add an element to the tree
         """
         self.tree.add(node, parent, pos)
+
+
+    def delete(self, node, name, all=True):
+        """
+        Deletes the child 'name' of the node
+        """
+        for child in copy.copy(node.children):
+            if child.name == name:
+                node.children.remove(child)
+                if not all:
+                    break
+
+        return node
