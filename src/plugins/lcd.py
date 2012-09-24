@@ -693,7 +693,7 @@ class PluginInterface(plugin.DaemonPlugin):
         if type == 'menu':
             try:
                 menu  = object.menustack[-1]
-                title = menu.selected.name
+                title = menu.selected['title']
                 if isinstance(menu.selected, MenuItem):
                     title = _(title)
 

@@ -1045,7 +1045,7 @@ class DirItem(Playlist):
 
         else:
             # normal menu build
-            item_menu = menu.Menu(self.name, items, reload_func=self.reload,
+            item_menu = menu.Menu(self.title, items, reload_func=self.reload,
                 item_types=self['skin_display_type'], force_skin_layout=self.DIRECTORY_FORCE_SKIN_LAYOUT)
 
             # a special case for audio items, this allows to display righ aligned track length (for example)

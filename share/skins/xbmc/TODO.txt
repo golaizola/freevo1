@@ -1,0 +1,59 @@
+TODO
+- [NOT] Aspect Ratio is not calculated properly (i.e. is 1.777777778 should be 1.78) (need to run freevo cache or remove OVERLAY_DIR\vfs as cached with old version)
+- [BUG] Menu Font on the main screen is not correct (FIXED)
+- [BUG] DetachDialog does not come on for next song being played (FIXED)
+- [BUG] Upon return to the audio player from detached dialog screen is not rendered properly (FIXED)
+- [BUG] MessageDialog of type 'status' is not correct (FIXED)
+- [BUG] freevo.skins.main.skin_utils - ERROR - Menu item: %r doesn't have enough table entries! (FIXED)
+- [BUG] Wrong icon for "Show player" command (FIXED)
+- [BUG] Fix (swap) SEEK and FFWD/RWD buttons on the play_state_dialog (video) (FIXED)
+- [BUG] Correct seek chapter and ffwd/rwd behaviour for mplayer (FIXED)
+- [NEW] Add skin specific config functionality (PART) needs local_xbmc.py (DONE)
+- [NEW] Add MPAYER_VERSION = 2 functionaity (DONE)
+- [BUG] When audio payer is detached, seecting new song and going attached will not display PayStateDiaog (FIXED)
+- [BUG] When next song plays in the attached player, the dialog gets hidded and then shown again (FIXED)
+- [NEW] Show FFWD buttons when skipping to the next song in attached payer (FIXED)
+- [NEW] Show stop button presses in video and audio attached player (FIXED)
+- [BUG] Media type is not set for audio cds [FIXED]
+- [BUG] Background is not shown for individual items even though are in the fxd file [PART]
+- [BUG] On delete info, do not delete whole fxd file, just folder content! [FIXED]
+- [BUG] Allow Update to the IMDB fxd file [FIXED]
+- [BUG] DIRECTORY_FORCE_SKIN_LAYOUT not working as expected in DirItem.configure() [FIXED]
+- [BUG] SKIN - Fix all xbmc folder fxds (FIXED)
+- [BUG] Name of the top folder as defined in local_config.py is not set properly, real dir name is used [FIXED]
+- [BUG] Clean up the handling of the skin config files (xbmc_config.py etc.) (FIXED)
+- [BUG] Remove $Id $ references from all archive, subtitle and imdb files (not used by git) (FIXED)
+- [BUG] Remove kaa.threaded from subtitles (video/plugins/subtitles/__init__.py) (FIXED)
+- [BUG] Flash stop icon in the osd play state dialog only if dialog visible, do not show dialog if hidden (FIXED)
+- [NEW] Use radiobutton-focus and radiobutton-nofocus for ICON_RIGHT_ON and OFF (NOT DONE)
+- [BUG] Finalize all types (video, audio, image etc.) in xbmc skin, especially image (FIXED)
+- [NEW] Add dir action to Set and Reset backgroung images [BETA] (DONE)
+- [BUG] IMDB, For tv series, when there is no cover img in the fxd, use the series cover [BETA] (FIXED)
+- [BUG] switch the displaying of the menu tile in the lcd.py from menu.selected.name to menu.selected['title'] [BETA] (FIXED)
+- [BUG] Fix the video submenu so it displays the background.jpg in the deir instead of generic bg [BETA] (FIXED)
+
+- [BUG] Fix number of game items reported in the listing game dir view [BETA]
+- [BUG] Remove dependancy on info.fxd skin [BETA]
+- [NEW] IMDB - For tv series use only one cover img, do not download or create new ones [BETA]
+- [BUG] IMDB, when retrieving tv show episode details, show title and ep title get corrupt [BETA] [kaa bug, context switching while in IO?]
+- [BUG] Fix the full details screen/widget so view area is visible [BETA]
+- [BUG] Fix performance and display style issues with the skinning of individual items [BETA]
+- [BUG] Handle images (not thumbs) in the view area [BETA]
+- [NEW] Add TEXT_CENTER and TEXT_RIGHT to the listing area table handling [BETA]
+- [NEW] Add new weather widget based on play_state_mini osd dialog http://xbmc.org/skins/mediastreamredu/ [BETA]
+- [NEW] Proper video and image playlist icons for explorer view [BETA]
+- [NEW] Add new latest item widget based on play_state_mini osd dialog to play latest vid or audio file directly from main menu [BETA]
+- [NEW] New oneclick fully skinned weather screen [BETA]
+- [NEW] Add ability to count number of items in the archive that counts towards the count of num_total_play_items [BETA]
+- [NEW] Add a proper scroll bars to the listing area [BETA]
+- [NEW] A proper skin description which extends skin wiki [BETA]
+- [NEW] A ribbon viewer (full screen) for image viewer/plugin (see http://xbmcnewz.com/?p=355#!prettyPhoto[pp_977]/7/, XBMC skin Media Stream Redux) [BETA]
+- [NEW] Add audio and subtitle top icons to the OSD play_state dialog (use xbmc ones) [BETA]
+- [NEW] Add one up dir name display in listing view for audio listings (and maybe image) [BETA]
+- [BUG] Fix XINE OSD play state dialog [BETA]
+  
+- [NEW] Add ability to keep track of watched movies and episodes [BETA 2]
+- [NEW] Add image and audio bookmarks [BETA 2]
+- [NEW] Add plugin to download music covers, fan art/back from http://www.htbackdrops.com [BETA 2]
+- [NEW] Add plugin to download video covers, fan art/back from http://themoviedb [BETA 2]
+- [NEW] Add plugin to download tv show covers, fan art/back from http://thetvdb [BETA 2]

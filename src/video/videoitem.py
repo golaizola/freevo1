@@ -399,6 +399,14 @@ class VideoItem(Item):
             else:
                 return ''
 
+        if key == 'display_type':
+            display_type = Item.__getitem__(self, key)
+
+            if display_type and display_type == 'tv':
+                display_type = 'video'
+
+            return display_type
+            
         if not self.info:
             return ''
 

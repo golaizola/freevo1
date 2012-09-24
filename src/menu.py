@@ -481,7 +481,7 @@ class MenuWidget(GUIObject):
             elif hasattr(item, 'type'):
                 i.display_type = item.type
 
-        display_type = item['skin_display_type']
+        display_type = item['display_type']
 
         logger.debug('in make_submenu for menu=%s, fxd_file=%r, item.type=%r', menu_name, fxd_file if fxd_file else 'no fxd', display_type)
         s = Menu(menu_name, items, fxd_file=fxd_file, item_types = str('%s default' % display_type).strip())
