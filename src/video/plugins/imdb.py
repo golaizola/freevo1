@@ -136,7 +136,11 @@ class PluginInterface(plugin.ItemPlugin):
 
         items = []
         dlg = dialog.show_working_indicator(_('Searching IMDB...'))
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> master
         if self.disc_set:
             self.searchstring = self.item.media.label
         else:
@@ -149,6 +153,10 @@ class PluginInterface(plugin.ItemPlugin):
                                       self.disc_set)()
             lock.wait()
             results = lock.result            
+<<<<<<< HEAD
+=======
+            
+>>>>>>> master
             # loop through the results and create menu
             # should not use imdbpy objects here as imdbpy should be encapsulated by FxdImdb
             # but for now it's to much work to do this the right way. 
@@ -169,7 +177,11 @@ class PluginInterface(plugin.ItemPlugin):
             return
 
         dlg.hide()
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> master
         if config.IMDB_AUTOACCEPT_SINGLE_HIT and len(items) == 1:
             self.imdb_create_fxd(arg=items[0].arg, menuw=menuw)
             return
