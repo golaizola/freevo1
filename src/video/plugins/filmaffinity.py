@@ -316,7 +316,7 @@ class PluginInterface(plugin.ItemPlugin):
             if self.disc_set:
                 self.searchstring = self.item.media.label
             else:
-                self.searchstring = self.item.name
+                self.searchstring = self.item['title']
 
             for id, name, year in self.guessFilmAffinity(self.searchstring, self.disc_set):
                 try:
@@ -379,6 +379,7 @@ class PluginInterface(plugin.ItemPlugin):
         # go back in menustack
         for i in range(back):
             menuw.delete_menu()
+        menuw.refresh()
 
 
     def filmaffinity_create_fxd(self, arg=None, menuw=None):
@@ -540,26 +541,23 @@ class PluginInterface(plugin.ItemPlugin):
         soup = BeautifulSoup(results.read(), convertEntities='html')
         results.close()
 
-        img = soup.find('img',src=re.compile('.*-full\.jpg$'))
-        if img:
-            trs = img.findParent('table').findAll('tr')
-            img_ratings = soup.find('img',src=re.compile('imgs/ratings'))
-        else:
-            trs = None
-            img_ratings = None
-
-#       _debug_("Tag %s" % trs)
-
         self.title = soup.find('img', src=re.compile('movie.gif$')).nextSibling.string.strip().encode('latin-1')
-        self.info['director'] = stripTags(soup.find(text='DIRECTOR').findParent('table').td.nextSibling.nextSibling.contents).strip()
-        self.info['year'] = soup.find(text='AÑO').parent.parent.parent.table.td.string.strip()
+        self.info['director'] = stripTags(soup.find(text='DIRECTOR').findParent('tr').td.contents).strip()
+        self.info['year'] = soup.find(text='AÑO').findParent('tr').td(text=True)[-1].strip()
         self.info['country'] = soup.find('img', src=re.compile('^\/imgs\/countries\/'))['title'].strip()
 
-        if img_ratings:
-            self.info['rating'] = img_ratings['alt'] + ' (' + trs[1].td.string + '/' + trs[4].td.string.strip('(')
+        img = soup.find('img',src=re.compile('.*-full\.jpg$'))
+        if img:
+            img_ratings = soup.find('img',src=re.compile('imgs/ratings'))
+        else:
+            img_ratings = None
 
-        self.info['tagline'] = soup.find(text='TÍTULO ORIGINAL').findParent('table').td.nextSibling.nextSibling.b.string.strip().encode('latin-1')
-        self.info['actor']= stripTags(soup.find(text='REPARTO').parent.parent.nextSibling.nextSibling.contents).strip()
+        if img_ratings:
+           logger.debug(img_ratings.parent.previousSibling)
+           self.info['rating'] = img_ratings['alt'] + ' / ' + stripTags(img_ratings.parent.previousSibling.previousSibling.contents).strip()
+
+        self.info['tagline'] = soup.find(text='TÍTULO ORIGINAL').findParent('tr').td.strong.string.strip().encode('latin-1')
+        self.info['actor']= stripTags(soup.find(text='REPARTO').findParent('tr').td.contents).strip()
 
         sinopsis = soup.find(text='SINOPSIS')
         if sinopsis:
