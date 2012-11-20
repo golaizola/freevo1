@@ -394,11 +394,14 @@ class MPlayer:
         # Unfortunately, subtitle size is heavilly dependant on the size of 
         # the video, i.e. width/height so the size varies so much that is unusable
         if config.MPLAYER_ASS_FONT_SCALE and mode not in ['dvd', 'default']:
-            v_height = float(item.getattr('height'))
-            v_width  = float(item.getattr('width'))
-            f_scale = (v_width / v_height) * config.MPLAYER_ASS_FONT_SCALE
+            try:
+                v_height = float(item.getattr('height'))
+                v_width  = float(item.getattr('width'))
+                f_scale = (v_width / v_height) * config.MPLAYER_ASS_FONT_SCALE
 
-            command += ['-ass-font-scale', str(f_scale)]
+                command += ['-ass-font-scale', str(f_scale)]
+            except ValueError:
+                logger.error('Can´t parse width or height of video item (width=%s, height=%s)', item.getattr('width'), item.getattr('height'))
 
         # use software scaler?
         #XXX these need to be in the arg list as the scaler will add vf args
