@@ -61,6 +61,7 @@ import dialog
 import dialog.dialogs
 
 from gui import InputBox
+from skin.widgets import TextEntryScreen
 
 
 all_variables = [
@@ -814,15 +815,19 @@ class DirItem(Playlist):
 
             self.arg   = (arg, line.strip())
             self.menuw = menuw
-            pb = InputBox(text=_('Enter Password'), handler=self.pass_cmp_cb, type='password')
-            pb.show()
+
+            txt = TextEntryScreen((_('Enter'), self.pass_cmp_cb), _('Enter password'))
+            txt.show(menuw)
+
+#            pb = InputBox(text=_('Enter Password'), handler=self.pass_cmp_cb, type='password')
+#            pb.show()
         else:
             if self.media:
                 self.media.umount()
             self.build(arg=arg, menuw=menuw)
 
 
-    def pass_cmp_cb(self, word=None):
+    def pass_cmp_cb(self, menuw=None, word=''):
         """
         read the contents of self.dir/.passwd and compare to word
         callback for check_password_and_build
