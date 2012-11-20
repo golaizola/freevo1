@@ -89,6 +89,8 @@ class MPlayer:
         self.plugins    = []
         self.paused     = False
         self.stored_time_info = None
+	self.aspect	= 0
+	self.aspectlist = ["0", "1.3333", "1.7778", "2.35"]
 
 
     def rate(self, item):
@@ -137,6 +139,7 @@ class MPlayer:
         self.item_info    = None
         self.item_length  = -1
         self.item.elapsed = 0
+        self.aspect = 0
 
         if mode == 'file':
             url = item.url[6:]
@@ -644,6 +647,11 @@ class MPlayer:
                 y = (config.CONF.height - h) / 2
                 osd.video_window.set_geometry((x,y), (w,h))
                 osd.video_window.show()
+            return True
+
+        if event == VIDEO_ASPECT:
+            self.aspect = (self.aspect + 1) % 4
+            self.app.write('switch_ratio %s\n' % self.aspectlist[self.aspect]) 
             return True
 
         # nothing found? Try the eventhandler of the object who called us

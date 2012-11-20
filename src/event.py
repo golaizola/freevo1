@@ -191,6 +191,7 @@ TOGGLE_OSD             = Event('TOGGLE_OSD')
 
 #
 # Video module
+VIDEO_ASPECT           = Event('VIDEO_ASPECT')
 #
 
 VIDEO_SEND_MPLAYER_CMD = Event('VIDEO_SEND_MPLAYER_CMD')
@@ -404,6 +405,7 @@ VIDEO_EVENTS = {
     'SUBTITLE'  : VIDEO_NEXT_SUBTITLE,
     'AVSYNC+'   : Event(VIDEO_AVSYNC, arg=0.100),
     'AVSYNC-'   : Event(VIDEO_AVSYNC, arg=-0.100),
+    'ASPECT'    : VIDEO_ASPECT,
     }
 
 DVD_EVENTS = {
