@@ -46,6 +46,7 @@ def play_movie(arg=None, menuw=None):
     Dummy for playing the movie
     """
     menuw.delete_menu()
+    arg[0].delete_info('autobookmark_resume')
     arg[0].play(menuw=menuw, arg=arg[1])
 
 
