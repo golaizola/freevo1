@@ -153,7 +153,7 @@ class PluginInterface(plugin.ItemPlugin):
             raise FxdFilmaffinity_Net_Error(_('Connection error: ') + error)
             exit
 
-        regexp_getmultiple = re.compile('.*<b><a href="(/es/film.*\.html)">(.*?)</a></b>\s*\(([0-9]{4})\)\s*', re.I)
+        regexp_getmultiple = re.compile('.*<div class="mc-title"><a href="(/es/film.*\.html)">(.*?)</a>\s*\(([0-9]{4})\)', re.I)
         regexp_getsingle = re.compile('^<meta name="keywords" content="movie', re.I)
         regexp_geturl = re.compile('.*<a href="/es/.*\.php\?movie_id=([0-9]*)',re.I)
         multiple = True
@@ -538,36 +538,36 @@ class PluginInterface(plugin.ItemPlugin):
         inside_plot = None
         self.image_url = ''
 
-        soup = BeautifulSoup(results.read(), convertEntities='html')
+        soup = BeautifulSoup(results.read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
         results.close()
 
-        self.title = soup.find('img', src=re.compile('movie.gif$')).nextSibling.string.strip().encode('latin-1')
-        self.info['director'] = stripTags(soup.find(text='DIRECTOR').findParent('tr').td.contents).strip()
-        self.info['year'] = soup.find(text='AÑO').findParent('tr').td(text=True)[-1].strip()
+        self.title = stripTags(soup.find('h1', id='main-title').contents).strip().encode('latin-1')
+        self.info['director'] = stripTags(soup.find('dt', text=re.compile('DIRECTOR', re.IGNORECASE)).parent.findNext('dd').contents).strip()
+        self.info['year'] = soup.find('dt', text=re.compile('A.O', re.IGNORECASE)).parent.findNext('dd').contents[0].strip()
         self.info['country'] = soup.find('img', src=re.compile('^\/imgs\/countries\/'))['title'].strip()
 
-        img = soup.find('img',src=re.compile('.*-full\.jpg$'))
+        img = soup.find('a', href=re.compile('.*-large\.jpg$'))
         if img:
-            img_ratings = soup.find('img',src=re.compile('imgs/ratings'))
+            img_ratings = soup.find('img', src=re.compile('imgs/ratings'))
         else:
             img_ratings = None
 
         if img_ratings:
            logger.debug(img_ratings.parent.previousSibling)
-           self.info['rating'] = img_ratings['alt'] + ' / ' + stripTags(img_ratings.parent.previousSibling.previousSibling.contents).strip()
+           self.info['rating'] = img_ratings['alt'] + ' / ' + soup.find('div', id='movie-rat-avg').contents[0].strip()
 
-        self.info['tagline'] = soup.find(text='TÍTULO ORIGINAL').findParent('tr').td.strong.string.strip().encode('latin-1')
-        self.info['actor']= stripTags(soup.find(text='REPARTO').findParent('tr').td.contents).strip()
+        self.info['tagline'] = soup.find('dt', text=re.compile('T.TULO ORIGINAL', re.IGNORECASE)).parent.findNext('dd').contents[0].strip().encode('latin-1')
+        self.info['actor']= stripTags(soup.find('dt', text=re.compile('REPARTO', re.IGNORECASE)).parent.findNext('dd').contents).strip()
 
-        sinopsis = soup.find(text='SINOPSIS')
+        sinopsis = soup.find('dt', text=re.compile('SINOPSIS', re.IGNORECASE))
         if sinopsis:
-            td = sinopsis.findNext('td')
+            td = sinopsis.parent.findNext('dd')
             logger.debug('PLOT: %s', td.contents)
             self.info['plot'] = '\n'.join([td.string for td in td.findAll(text=True)]).strip().encode('latin-1')
 
-        genero = soup.find(text='GÉNERO')
+        genero = soup.find('dt', text=re.compile('G.NERO', re.IGNORECASE))
         if genero:
-            td = genero.findNext('td')
+            td = genero.parent.findNext('dd')
 
             logger.debug('GENRE: %s', td.contents)
             
@@ -578,10 +578,7 @@ class PluginInterface(plugin.ItemPlugin):
         #  with an <a> tag to show a big image and the old one without it
         #
         if img:
-            if img.parent.has_key('href'):
-                self.image_url = img.parent['href']
-            else:
-                self.image_url = img['src']
+            self.image_url = img['href']
 
         return (self.title, self.info, self.image_url)
 
