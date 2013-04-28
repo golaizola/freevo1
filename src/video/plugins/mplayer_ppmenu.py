@@ -79,7 +79,7 @@ class item(plugin.ItemPlugin):
                 ('HQ', 'pp=ac/al'),
                 ('HQ denoise3d', 'pp=ac/al,hqdn3d=2:2:4'),
                 ('HQ denoise3d+unsharp', 'pp=ac/al,hqdn3d=2:2:4,unsharp=l3x3:0.5'),
-                ('HQ denoise3d+unsharp+noise', 'pp=ac/al,hqdn3d=2:2:4,unsharp=l3x3:0.5,noise=12uah:5uah')
+                ('HQ denoise3d+unsharp+noise', 'pp=ac/al,hqdn3d=2:2:4,unsharp=l3x3:0.5,noise=12uah:5uah'),
                 ('HD content', 'pp=de -lavdopts fast:skiploopfilter=all:threads=2')
              ]
 
