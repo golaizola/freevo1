@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-26 17:54+0100\n"
-"PO-Revision-Date: 2008-08-20 22:48+0100\n"
+"PO-Revision-Date: 2013-11-10 11:44+0100\n"
 "Last-Translator: Gorka Olaizola <gorka@escomposlinux.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -384,8 +384,7 @@ msgstr "%s no existe. No se ha realizado ninguna acción."
 #: www/htdocs/library.rpy:248 www/htdocs/library1.rpy:200
 #, python-format
 msgid "I do not process names (%s) with slashes for security reasons."
-msgstr ""
-"No se pueden procesar nombres (%s) con barras por razones de seguridad."
+msgstr "No se pueden procesar nombres (%s) con barras por razones de seguridad."
 
 #: www/htdocs/library.rpy:287 www/htdocs/library1.rpy:229 www/web_types.py:396
 msgid "Messages"
@@ -757,8 +756,7 @@ msgstr "no se pueden cargar los ficheros html"
 
 #: www/htdocs/help/howto.rpy:85 www/htdocs/help/doc.rpy:62
 msgid "If you use a svn version of Freevo, run <b>autogen.sh</b>."
-msgstr ""
-"Si estás usando una versión del svn de Freevo ejecuta <b>autogen.sh</b>."
+msgstr "Si estás usando una versión del svn de Freevo ejecuta <b>autogen.sh</b>."
 
 #: www/htdocs/help/howto.rpy:86
 msgid "The files are searched in the following locations:"
@@ -900,64 +898,57 @@ msgid "Playing"
 msgstr "Reproduciendo"
 
 #: dialog/display.py:120
-#, fuzzy
 msgid "Paused"
-msgstr "pausa"
+msgstr "Pausa"
 
 #: dialog/display.py:122
-#, fuzzy
 msgid "Rewind"
-msgstr "Recordatorios"
+msgstr "Atrás"
 
 #: dialog/display.py:124
 msgid "Fast forward"
-msgstr ""
+msgstr "Avanzar"
 
 #: dialog/display.py:126
 msgid "Seeking back"
-msgstr ""
+msgstr "Rebobinando"
 
 #: dialog/display.py:128
 msgid "Seeking forward"
-msgstr ""
+msgstr "Avanzando"
 
 #: dialog/display.py:130
-#, fuzzy
 msgid "Slow"
-msgstr "Programa"
+msgstr "Lento"
 
 #: dialog/display.py:132
-#, fuzzy
 msgid "Fast"
-msgstr "a"
+msgstr "Rápido"
 
 #: dialog/display.py:190
-#, fuzzy, python-format
+#, python-format
 msgid "%s: Muted"
-msgstr "Mudo"
+msgstr "%s: Mudo"
 
 #: dialog/plugins/tiny_xosd_display.py:85 dialog/dialogs.py:228
 msgid "Volume"
 msgstr "Volumen"
 
 #: dialog/plugins/tiny_xosd_display.py:88
-#, fuzzy
 msgid "Muted"
 msgstr "Mudo"
 
 #: dialog/dialogs.py:222
-#, fuzzy
 msgid "Center"
-msgstr "Central: %s"
+msgstr "Central"
 
 #: dialog/dialogs.py:224
-#, fuzzy
 msgid "Surround"
-msgstr "Surround: %s%%"
+msgstr "Trasero"
 
 #: dialog/dialogs.py:226
 msgid "LFE"
-msgstr ""
+msgstr "Frontal"
 
 #: config.py:463
 msgid "CRITICAL"
@@ -1332,9 +1323,8 @@ msgid "Show player"
 msgstr "Mostrar el reproductor"
 
 #: audio/plugins/lastfm2.py:220
-#, fuzzy
 msgid "Listen to LastFM Station"
-msgstr "Oir una emisora de radio XM"
+msgstr "Oir una emisora de radio LastFM"
 
 #: audio/plugins/lastfm2.py:550
 #, fuzzy
@@ -1598,9 +1588,8 @@ msgid "Reading disc in drive %s"
 msgstr "Leyendo disco de la unidad %s"
 
 #: plugins/buttonbar.py:125
-#, fuzzy
 msgid "More options"
-msgstr "Opciones de dispositivos"
+msgstr "Más opciones"
 
 #: plugins/buttonbar.py:131 tv/programitem.py:103
 msgid "Full Description"
@@ -1978,9 +1967,8 @@ msgid "Shutdown"
 msgstr "Apagar"
 
 #: plugins/shutdown.py:165 plugins/shutdown.py:177 plugins/shutdown.py:189
-#, fuzzy
 msgid "Cancel"
-msgstr "Canal"
+msgstr "Cancelar"
 
 #: plugins/shutdown.py:176
 msgid "Do you really want to shut down the system?"
@@ -1991,9 +1979,8 @@ msgid "Do you really want to restart the system?"
 msgstr "¿Estás seguro de querer reiniciar el sistema?"
 
 #: plugins/shutdown.py:189
-#, fuzzy
 msgid "Restart"
-msgstr "Comienzo"
+msgstr "Reiniciar"
 
 #: plugins/lcd.py:52
 msgid "You need pylcd to run \"lcd\" plugin."
@@ -2110,8 +2097,7 @@ msgstr "Género"
 
 #: plugins/vfd.py:52
 msgid "You need pyusb (http://pyusb.berlios.de/) to run \"vfd\" plugin."
-msgstr ""
-"Necesitas pyusb (http://pyusb.berlios.de/) para cargar el módulo \"vfd\"."
+msgstr "Necesitas pyusb (http://pyusb.berlios.de/) para cargar el módulo \"vfd\"."
 
 #: plugins/vfd.py:298
 #, python-format
@@ -2292,12 +2278,10 @@ msgid "Tonight"
 msgstr "Esta noche:"
 
 #: plugins/oneclick.py:991
-#, fuzzy
 msgid "Sunset"
 msgstr "Puesta de sol:"
 
 #: plugins/oneclick.py:992
-#, fuzzy
 msgid "Moon Phase"
 msgstr "Fase lunar:"
 
@@ -2374,9 +2358,8 @@ msgid "Flurries"
 msgstr "Chaparrones"
 
 #: plugins/oneclick.py:1102
-#, fuzzy
 msgid "Thunder"
-msgstr "Lluvia/truenos"
+msgstr "Truenos"
 
 #: plugins/oneclick.py:1103
 msgid "Heavy Snow"
@@ -3373,13 +3356,12 @@ msgid "Command finished"
 msgstr "Mandato finalizado"
 
 #: plugins/command.py:167
-#, fuzzy
 msgid "Show output"
-msgstr "Mostar Stdout"
+msgstr "Mostrar salida"
 
 #: plugins/command.py:184
 msgid "Output"
-msgstr ""
+msgstr "Salida"
 
 #: plugins/command.py:282
 msgid "Running Command..."
@@ -3622,7 +3604,6 @@ msgid "This feed enables cooliris http://www.cooliris.com/ in your web browser"
 msgstr ""
 
 #: video/encodingclient.py:84
-#, fuzzy
 msgid "Encoding server is not available"
 msgstr "El servidor de grabación no está disponible"
 
@@ -3849,14 +3830,12 @@ msgid "Video Podcasts"
 msgstr "Video Podcast"
 
 #: video/plugins/vpodcast.py:189
-#, fuzzy
 msgid "Fetching podcast items..."
 msgstr "Obteniendo podcasts..."
 
 #: video/plugins/vpodcast.py:518
-#, fuzzy, python-format
 msgid "Fetching \"%s\"..."
-msgstr "Obteniendo podcast..."
+msgstr "Obteniendo \"%s\"..."
 
 #: video/plugins/vpodcast.py:534
 #, python-format
@@ -3864,13 +3843,16 @@ msgid ""
 "Fetching \"%s\" failed\n"
 "No data"
 msgstr ""
+"La obtención de \"%s\" ha fallado\n"
+"Sin datos"
 
 #: video/plugins/vpodcast.py:537
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Fetching \"%s\" failed:\n"
 "%s"
-msgstr "findMatches ha fallado: %s"
+msgstr "La obtención de \"%s\" ha fallado:\n"
+"%s"
 
 #: video/plugins/xine.py:71
 msgid ""
@@ -4040,49 +4022,41 @@ msgid "Choose disc (%i discs available)."
 msgstr "Elije disco (%i discos disponibles)."
 
 #: video/plugins/wikisubtitles.py:94
-#, fuzzy
 msgid "Downloading subtitle, please wait.."
-msgstr "Generando cache de MAME. Espera, por favor."
+msgstr "Descargando subtítulo. Espera, por favor."
 
 #: video/plugins/wikisubtitles.py:98
-#, fuzzy
 msgid "Subtitle downloaded"
-msgstr "Menú de subtítulos"
+msgstr "Subtítulo descargado"
 
 #: video/plugins/wikisubtitles.py:106
 msgid "Getting versions of subtitle..."
-msgstr ""
+msgstr "Obteniendo versiones de subtítulos..."
 
 #: video/plugins/wikisubtitles.py:114 video/plugins/wikisubtitles.py:192
 #: video/plugins/wikisubtitles.py:230
-#, fuzzy
 msgid "Unknown error while connecting to "
-msgstr "Error desconocido mientras se conectaba con IMDB"
+msgstr "Error desconocido al conectar a "
 
 #: video/plugins/wikisubtitles.py:136
-#, fuzzy
 msgid "Versions found"
-msgstr "No se han encontrado titulares."
+msgstr "Versiones encontradas"
 
 #: video/plugins/wikisubtitles.py:150
-#, fuzzy
 msgid "Search Subtitle for this file"
-msgstr "Buscar en IMDB"
+msgstr "Buscar subtítulos para este fichero"
 
 #: video/plugins/wikisubtitles.py:161
-#, fuzzy
 msgid "searching Subtitle..."
-msgstr "Buscando en IMDB..."
+msgstr "Buscando subtítulos..."
 
 #: video/plugins/wikisubtitles.py:212
-#, fuzzy
 msgid "Subtitles found"
-msgstr "Subtítulos"
+msgstr "Subtítulos encontrados"
 
 #: video/plugins/wikisubtitles.py:219
-#, fuzzy
 msgid "No found subtitle"
-msgstr "sin subtítulos"
+msgstr "Subtítulos no encontrados"
 
 #: video/plugins/rtve.py:106 video/plugins/rtve.py:115
 msgid "Escaneando la web de RTVE..."
@@ -4105,9 +4079,8 @@ msgid "Elegir por Nombre del Programa"
 msgstr ""
 
 #: video/plugins/rtve.py:196
-#, fuzzy
 msgid "Programas"
-msgstr "Programa"
+msgstr "Programas"
 
 #: video/plugins/rtve.py:227
 msgid "Elegir por Canal"
@@ -4131,9 +4104,8 @@ msgid "searching IMDB..."
 msgstr "Buscando en IMDB..."
 
 #: video/plugins/imdb.py:156
-#, fuzzy
 msgid "Connecting to IMDB failed:"
-msgstr "Conectando a"
+msgstr "La conexión a IMDB ha fallado"
 
 #: video/plugins/imdb.py:174
 msgid "IMDB Query"
@@ -4291,12 +4263,11 @@ msgstr "Cargando lista de videos"
 
 #: video/plugins/youtube.py:252
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #: video/plugins/youtube.py:262
-#, fuzzy
 msgid "More videos..."
-msgstr "Videos de Youtube"
+msgstr "Más videos..."
 
 #: video/plugins/fxdarchive.py:93
 msgid "Archive FXD files"
@@ -4363,9 +4334,7 @@ msgstr "Crear miniaturas automáticamente "
 
 #: video/__init__.py:174
 msgid "Build video thumbnails for all items (may take a while when entering)."
-msgstr ""
-"Crear miniaturas de video para todos los elementos de la carpeta (puede "
-"tardar al entrar por primera vez a la carpeta)"
+msgstr "Crear miniaturas de todos los elementos (puede tardar al entrar)"
 
 #: video/videoitem.py:448
 msgid "Play DVD"
