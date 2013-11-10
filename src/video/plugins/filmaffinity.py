@@ -545,8 +545,8 @@ class PluginInterface(plugin.ItemPlugin):
 
 	dl = soup.find('dl', {'class':'movie-info'})
 
-        self.title = stripTags(soup.find('h1', id='main-title').contents).strip().encode('latin-1')
-        self.info['director'] = stripTags(dl.find('dt', text=re.compile('DIRECTOR', re.IGNORECASE)).parent.findNext('dd').contents).strip()
+        self.title = self.stripTags(soup.find('h1', id='main-title').contents).strip().encode('latin-1')
+        self.info['director'] = self.stripTags(dl.find('dt', text=re.compile('DIRECTOR', re.IGNORECASE)).parent.findNext('dd').contents).strip()
         self.info['year'] = dl.find('dt', text='Año').parent.findNext('dd').contents[0].strip()
         self.info['country'] = dl.find('img', src=re.compile('^\/imgs\/countries\/'))['title'].strip()
 
@@ -561,7 +561,7 @@ class PluginInterface(plugin.ItemPlugin):
            self.info['rating'] = img_ratings['alt'] + ' / ' + soup.find('div', id='movie-rat-avg').contents[0].strip()
 
         self.info['tagline'] = dl.find('dt', text=re.compile('T.TULO ORIGINAL', re.IGNORECASE)).parent.findNext('dd').contents[0].strip().encode('latin-1')
-        self.info['actor']= stripTags(dl.find('dt', text=re.compile('REPARTO', re.IGNORECASE)).parent.findNext('dd').contents).strip()
+        self.info['actor']= self.stripTags(dl.find('dt', text=re.compile('REPARTO', re.IGNORECASE)).parent.findNext('dd').contents).strip()
 
         sinopsis = dl.find('dt', text=re.compile('SINOPSIS', re.IGNORECASE))
         if sinopsis:
@@ -623,6 +623,20 @@ class PluginInterface(plugin.ItemPlugin):
             self.mpl_global_opt = mplayer_opt['mplayer_opt']
 
 
+    def stripTags(self, c):
+        str_list = []
+        for num in xrange(len(c)):
+            if c[num].string is None:
+                txt = ''
+            else:
+                txt = c[num].string.strip()
+
+            str_list.append(txt)
+
+        return ''.join(str_list)
+
+
+
 class Error(Exception):
     """Base class for exceptions in Filmaffinity_Fxd"""
     def __str__(self):
@@ -645,17 +659,6 @@ class FxdFilmaffinity_IO_Error(Error):
 class FxdFilmaffinity_Net_Error(Error):
     """used to raise exceptions"""
     pass
-
-def stripTags(c):
-    str_list = []
-    print len(c)
-    for num in xrange(len(c)):
-        if c[num].string is None:
-            txt = ''
-        else:
-            txt = c[num].string
-        str_list.append(txt)
-    return ''.join(str_list)
 
 
 if __name__ == '__main__':
