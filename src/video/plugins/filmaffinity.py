@@ -645,9 +645,9 @@ class FxdFilmaffinity_Net_Error(Error):
 def stripTags(c):
     str_list = []
     for num in xrange(len(c)):
-        str_list.append(c[num].string)
+        str_list.append(str(c[num]))
     return ''.join(str_list)
 
 if __name__ == '__main__':
     f = PluginInterface()
-    f.getFilmAffinityPage('http://www.filmaffinity.com/es/film809297.html')
+    f.getFilmAffinityPage('es/film809297.html')
