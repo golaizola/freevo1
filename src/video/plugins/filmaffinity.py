@@ -89,6 +89,8 @@ class PluginInterface(plugin.ItemPlugin):
     def __init__(self, license=None):
         """Initialise class instance"""
 
+        self.initmyself()
+
         # these are considered as private variables - don't mess with them unless
         # no other choise is given
         # fyi, the other choice always exists: add a subroutine or ask :)
