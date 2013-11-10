@@ -150,7 +150,7 @@ class PluginInterface(plugin.ItemPlugin):
         try:
             response = urllib2.urlopen(req)
         except urllib2.HTTPError, error:
-            raise FxdFilmaffinity_Net_Error(_('Connection error: ') + error)
+            raise FxdFilmaffinity_Net_Error(_('Connection error: ') + str(error))
             exit
 
         regexp_getmultiple = re.compile('.*<div class="mc-title"><a href="(/es/film.*\.html)">(.*?)</a>\s*\(([0-9]{4})\)', re.I)
@@ -215,7 +215,7 @@ class PluginInterface(plugin.ItemPlugin):
         try:
             idpage = urllib2.urlopen(req)
         except urllib2.HTTPError, error:
-            raise FxdAllocine_Net_Error(_('Connection error: ') + error)
+            raise FxdFilmaffinity_Net_Error(_('Connection error: ') + str(error))
             return None
 
         #print "Response: %s" % idpage.read()
@@ -647,3 +647,7 @@ def stripTags(c):
     for num in xrange(len(c)):
         str_list.append(c[num].string)
     return ''.join(str_list)
+
+if __name__ == '__main__':
+    f = PluginInterface()
+    f.getFilmAffinityPage('http://www.filmaffinity.com/es/film809297.html')
