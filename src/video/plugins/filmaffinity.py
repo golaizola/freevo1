@@ -543,10 +543,12 @@ class PluginInterface(plugin.ItemPlugin):
         soup = BeautifulSoup(results.read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
         results.close()
 
+	dl = soup.find('dl', {'class':'movie-info'})
+
         self.title = stripTags(soup.find('h1', id='main-title').contents).strip().encode('latin-1')
-        self.info['director'] = stripTags(soup.find('dt', text=re.compile('DIRECTOR', re.IGNORECASE)).parent.findNext('dd').contents).strip()
-        self.info['year'] = soup.find('dt', text=re.compile('A.O', re.IGNORECASE)).parent.findNext('dd').contents[0].strip()
-        self.info['country'] = soup.find('img', src=re.compile('^\/imgs\/countries\/'))['title'].strip()
+        self.info['director'] = stripTags(dl.find('dt', text=re.compile('DIRECTOR', re.IGNORECASE)).parent.findNext('dd').contents).strip()
+        self.info['year'] = dl.find('dt', text='Año').parent.findNext('dd').contents[0].strip()
+        self.info['country'] = dl.find('img', src=re.compile('^\/imgs\/countries\/'))['title'].strip()
 
         img = soup.find('a', href=re.compile('.*-large\.jpg$'))
         if img:
@@ -558,18 +560,18 @@ class PluginInterface(plugin.ItemPlugin):
            logger.debug(img_ratings.parent.previousSibling)
            self.info['rating'] = img_ratings['alt'] + ' / ' + soup.find('div', id='movie-rat-avg').contents[0].strip()
 
-        self.info['tagline'] = soup.find('dt', text=re.compile('T.TULO ORIGINAL', re.IGNORECASE)).parent.findNext('dd').contents[0].strip().encode('latin-1')
-        self.info['actor']= stripTags(soup.find('dt', text=re.compile('REPARTO', re.IGNORECASE)).parent.findNext('dd').contents).strip()
+        self.info['tagline'] = dl.find('dt', text=re.compile('T.TULO ORIGINAL', re.IGNORECASE)).parent.findNext('dd').contents[0].strip().encode('latin-1')
+        self.info['actor']= stripTags(dl.find('dt', text=re.compile('REPARTO', re.IGNORECASE)).parent.findNext('dd').contents).strip()
 
-        sinopsis = soup.find('dt', text=re.compile('SINOPSIS', re.IGNORECASE))
+        sinopsis = dl.find('dt', text=re.compile('SINOPSIS', re.IGNORECASE))
         if sinopsis:
             td = sinopsis.parent.findNext('dd')
             logger.debug('PLOT: %s', td.contents)
             self.info['plot'] = '\n'.join([td.string for td in td.findAll(text=True)]).strip().encode('latin-1')
 
-        genero = soup.find('dt', text=re.compile('G.NERO', re.IGNORECASE))
-        if genero:
-            td = genero.parent.findNext('dd')
+        genre = dl.find('dt', text=re.compile('G.NERO', re.IGNORECASE))
+        if genre:
+            td = genre.parent.findNext('dd')
 
             logger.debug('GENRE: %s', td.contents)
             
@@ -646,10 +648,18 @@ class FxdFilmaffinity_Net_Error(Error):
 
 def stripTags(c):
     str_list = []
+    print len(c)
     for num in xrange(len(c)):
-        str_list.append(str(c[num]))
+        if c[num].string is None:
+            txt = ''
+        else:
+            txt = c[num].string
+        str_list.append(txt)
     return ''.join(str_list)
 
+
 if __name__ == '__main__':
-    f = PluginInterface()
-    f.getFilmAffinityPage('es/film809297.html')
+    plugin = PluginInterface()
+    plugin.getFilmAffinityPage('es/film809297.html')
+
+    print plugin.info
